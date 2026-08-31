@@ -93,6 +93,11 @@ The scoring core and verifier are done and tested. Wallet sign-in, the server
 that stores logs, and the leaderboard are next. No tokens are distributed yet,
 and nothing here should be read as a promise that any will be.
 
+## Deployment
+
+Deploys automatically from `main` to
+[game.printergobrrr.money](https://game.printergobrrr.money).
+
 ## Credits
 
 Forked from
