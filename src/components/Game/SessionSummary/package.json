@@ -1,0 +1,6 @@
+{
+    "name": "SessionSummary",
+    "version": "0.0.0",
+    "private": true,
+    "main": "./SessionSummary.js"
+}

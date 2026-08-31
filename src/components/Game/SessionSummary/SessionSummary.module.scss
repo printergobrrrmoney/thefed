@@ -1,0 +1,39 @@
+.root {
+    position: relative;
+    z-index: 10;
+}
+
+.card {
+    max-width: 30rem;
+    width: 100%;
+}
+
+.title {
+    font-family: 'VT323', monospace;
+    font-size: 2.25rem;
+    letter-spacing: 0.02em;
+}
+
+.label {
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #6c757d;
+}
+
+.score {
+    font-family: 'VT323', monospace;
+    font-size: 3rem;
+    line-height: 1;
+    color: #1b7d3a;
+    word-break: break-all;
+}
+
+.remaining {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.leave {
+    font-size: 0.8rem;
+}
