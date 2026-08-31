@@ -4,12 +4,13 @@ import { routerMiddleware } from 'connected-react-router';
 import thunk from 'redux-thunk';
 import { createBrowserHistory } from 'history';
 import createRootReducer from '../modules';
+import recording from '../middleware/recording';
 
 const history = createBrowserHistory();
 
 const configureStore = () => {
     // Middeware
-    const middleware = [thunk, routerMiddleware(history)];
+    const middleware = [thunk, routerMiddleware(history), recording];
 
     // Create Store
     const initialState = {};

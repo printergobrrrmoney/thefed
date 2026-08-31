@@ -5,6 +5,7 @@ import thunk from 'redux-thunk';
 import { createLogger } from 'redux-logger';
 import { createBrowserHistory } from 'history';
 import createRootReducer from '../modules';
+import recording from '../middleware/recording';
 
 const history = createBrowserHistory();
 
@@ -19,7 +20,12 @@ const configureStore = () => {
         enhancers.push(devToolsExtension());
 
     // Middleware
-    const middleware = [thunk, routerMiddleware(history), createLogger()];
+    const middleware = [
+        thunk,
+        routerMiddleware(history),
+        recording,
+        createLogger()
+    ];
 
     const composedEnhancers = compose(
         applyMiddleware(...middleware),

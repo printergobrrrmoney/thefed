@@ -25,6 +25,7 @@ import MoneyTicker from './MoneyTicker';
 import NavbarButton from './NavbarButton';
 import Help from '../Help';
 import EndGameWarning from '../EndGameWarning';
+import ConnectWallet from './ConnectWallet';
 import styles from './TopBar.module.scss';
 
 const clock = (seconds) => {
@@ -112,6 +113,7 @@ const TopBar = ({
                             onClick={handleVolume}
                         />
                     )}
+                    <ConnectWallet />
                     <NavbarButton
                         label="Help"
                         icon={faQuestionCircle}

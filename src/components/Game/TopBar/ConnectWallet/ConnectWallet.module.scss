@@ -1,0 +1,26 @@
+.root {
+    display: inline-block;
+}
+
+.button {
+    font-size: 0.8rem;
+    white-space: nowrap;
+}
+
+.full {
+    font-family: 'VT323', monospace;
+    font-size: 0.9rem;
+    word-break: break-all;
+    max-width: 16rem;
+}
+
+.note {
+    font-size: 0.72rem;
+    white-space: normal;
+    max-width: 16rem;
+}
+
+.install {
+    font-size: 0.85rem;
+    opacity: 0.75;
+}
