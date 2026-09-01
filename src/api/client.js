@@ -1,20 +1,60 @@
 /**
  * Talking to the game's own API.
  *
- * The session token is held in memory rather than localStorage: it is only
- * needed for as long as a tab is open, and not persisting it means a shared or
- * borrowed machine does not leave a signed-in wallet behind.
+ * The session token lives in sessionStorage, not localStorage. That is
+ * deliberate on both counts: it survives a reload, so refreshing mid-run does
+ * not silently cost a player their session, but it dies with the tab, so a
+ * shared or borrowed machine is not left signed in.
+ *
+ * Trusting storage for this is safe. The token is HMAC-signed and checked by
+ * the server on every request, so an edited one simply fails.
  */
+export const TOKEN_KEY = 'thefed:token';
+
 let token = null;
+
+const storage = () => {
+    try {
+        return typeof window !== 'undefined' ? window.sessionStorage : null;
+    } catch (error) {
+        // Private browsing and blocked storage both throw on access.
+        return null;
+    }
+};
 
 export const setToken = (value) => {
     token = value;
+    const store = storage();
+    if (!store) return;
+    try {
+        if (value) store.setItem(TOKEN_KEY, value);
+        else store.removeItem(TOKEN_KEY);
+    } catch (error) {
+        // Without storage the token simply will not survive a reload.
+    }
 };
 
-export const getToken = () => token;
+export const getToken = () => {
+    if (token) return token;
+    const store = storage();
+    if (!store) return null;
+    try {
+        token = store.getItem(TOKEN_KEY);
+    } catch (error) {
+        token = null;
+    }
+    return token;
+};
 
 export const clearToken = () => {
-    token = null;
+    setToken(null);
+    const store = storage();
+    if (!store) return;
+    try {
+        store.removeItem('thefed:session');
+    } catch (error) {
+        // Nothing useful to do.
+    }
 };
 
 export class ApiError extends Error {
@@ -31,7 +71,7 @@ const request = async (path, { method = 'GET', body } = {}) => {
         method,
         headers: {
             ...(body ? { 'Content-Type': 'application/json' } : {}),
-            ...(token ? { Authorization: `Bearer ${token}` } : {})
+            ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {})
         },
         ...(body ? { body: JSON.stringify(body) } : {})
     });
@@ -66,3 +106,32 @@ export const fetchLeaderboard = (limit = 25) =>
 
 export const setDisplayName = (displayName) =>
     request('/player/name', { method: 'POST', body: { displayName } });
+
+/**
+ * Just enough about a signed-in player to rebuild the UI after a reload — the
+ * wallet used, the address, the chosen name. Nothing here is trusted: the token
+ * stored alongside it is what the server actually checks.
+ */
+const SESSION_KEY = 'thefed:session';
+
+export const rememberSession = (patch) => {
+    const store = storage();
+    if (!store) return;
+    try {
+        const current = rememberedSession() || {};
+        store.setItem(SESSION_KEY, JSON.stringify({ ...current, ...patch }));
+    } catch (error) {
+        // Without storage the player simply signs in again after a reload.
+    }
+};
+
+export const rememberedSession = () => {
+    const store = storage();
+    if (!store) return null;
+    try {
+        const raw = store.getItem(SESSION_KEY);
+        return raw ? JSON.parse(raw) : null;
+    } catch (error) {
+        return null;
+    }
+};

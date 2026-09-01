@@ -1,5 +1,6 @@
 import { isSessionOver } from '../../game-core';
 import { submitSession, restoreSession } from '../modules/submission';
+import { restoreSignIn } from '../modules/wallet';
 import { restoreRecorder } from './recording';
 
 /**
@@ -18,6 +19,9 @@ const submitOnClose = (store) => (next) => (action) => {
     // session forgotten. Put both back, so a refresh mid-run costs nothing.
     if (action.type === 'persist/REHYDRATE' && action.key === 'game') {
         const result = next(action);
+        // Sign-in first: without the token the restored session cannot be
+        // submitted, and restoring the log alone would still lose the run.
+        store.dispatch(restoreSignIn());
         const saved = restoreRecorder();
         if (saved && saved.sessionId) {
             store.dispatch(restoreSession(saved.sessionId));

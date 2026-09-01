@@ -15,6 +15,7 @@ const SIGNED_IN = 'thefed/wallet/SIGNED_IN';
 const NAME_SET = 'thefed/wallet/NAME_SET';
 const FAILED = 'thefed/wallet/FAILED';
 const DISCONNECTED = 'thefed/wallet/DISCONNECTED';
+const RESTORED = 'thefed/wallet/RESTORED';
 
 const initialState = {
     walletId: null,
@@ -56,6 +57,14 @@ export default (state = initialState, action = {}) => {
                 connecting: false,
                 signingIn: false,
                 error: action.error
+            };
+        case RESTORED:
+            return {
+                ...initialState,
+                walletId: action.walletId,
+                address: action.address,
+                displayName: action.displayName || null,
+                signedIn: true
             };
         case DISCONNECTED:
             return initialState;
@@ -123,6 +132,14 @@ export const signIn = () => async (dispatch, getState) => {
         });
 
         api.setToken(session.token);
+        // Remembered for the life of the tab so a reload does not sign the
+        // player out mid-run. The token beside it is what actually proves
+        // anything; this is only enough to put the UI back.
+        api.rememberSession({
+            walletId,
+            address,
+            displayName: session.displayName
+        });
         dispatch({ type: SIGNED_IN, displayName: session.displayName });
         return true;
     } catch (error) {
@@ -141,6 +158,7 @@ export const connectAndSignIn = (walletId) => async (dispatch) => {
 export const chooseDisplayName = (displayName) => async (dispatch) => {
     try {
         const result = await api.setDisplayName(displayName);
+        api.rememberSession({ displayName: result.displayName });
         dispatch({ type: NAME_SET, displayName: result.displayName });
         return null;
     } catch (error) {
@@ -153,6 +171,17 @@ export const disconnectWallet = () => async (dispatch, getState) => {
     if (walletId) await wallet.disconnect(walletId);
     api.clearToken();
     dispatch({ type: DISCONNECTED });
+};
+
+/**
+ * Put a signed-in player back after a reload. The token does the proving; if it
+ * has expired or been tampered with, the next request simply fails.
+ */
+export const restoreSignIn = () => (dispatch) => {
+    const remembered = api.rememberedSession();
+    if (!remembered || !api.getToken()) return false;
+    dispatch({ type: RESTORED, ...remembered });
+    return true;
 };
 
 export const isSignedIn = ({ wallet: w }) => w.signedIn;
