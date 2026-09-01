@@ -1,6 +1,6 @@
 import uuid from 'uuid/v4';
 import { push } from 'connected-react-router';
-import { recordSession } from './sessions';
+import { recordSession, sessionsRemaining } from './sessions';
 import { openSession, submitSession } from './submission';
 import ciaUpdate from './news/ciaUpdate';
 import trumpTweet from './news/trumpTweet';
@@ -127,12 +127,18 @@ export const setPlayer = (player) => ({
 });
 
 export const startGame = () => (dispatch, getState) => {
-    dispatch(recordSession());
+    const { signedIn } = getState().wallet;
+    const scored = signedIn && sessionsRemaining(getState()) > 0;
+
+    // The daily allowance only rations scored runs. Someone playing without a
+    // wallet earns nothing, so counting their terms would only stop them
+    // playing a game that is meant to be free.
+    if (scored) dispatch(recordSession());
+
     dispatch({ type: START_GAME });
     dispatch(push('/'));
-    // Only signed-in players get a scored session. Everyone else can still
-    // play; their run simply is not attributed to anyone.
-    if (getState().wallet.signedIn) dispatch(openSession());
+
+    if (scored) dispatch(openSession());
 };
 
 /**

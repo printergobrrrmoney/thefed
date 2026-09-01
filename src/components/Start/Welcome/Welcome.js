@@ -1,5 +1,5 @@
 import React from 'react';
-import { shape, string, func, number } from 'prop-types';
+import { shape, string, func, number, bool } from 'prop-types';
 import { connect } from 'react-redux';
 import { Button } from 'react-bootstrap';
 import { startGame } from '../../../state/modules/game';
@@ -9,7 +9,7 @@ import {
 } from '../../../state/modules/sessions';
 import { ReactComponent as Signature } from './trump-signature.svg';
 
-const Welcome = ({ name, remaining, handleStartGame }) => (
+const Welcome = ({ name, remaining, signedIn, handleStartGame }) => (
     <>
         <p className="lead">Welcome, Chairman {name.last}!</p>
         <hr />
@@ -31,24 +31,21 @@ const Welcome = ({ name, remaining, handleStartGame }) => (
             <br />
             <Signature height="90px" />
         </p>
-        {remaining > 0 ? (
-            <>
-                <Button
-                    size="lg"
-                    variant="primary"
-                    onClick={handleStartGame}
-                    className="mt-3"
-                >
-                    I accept
-                </Button>
-                <p className="text-muted mt-3 mb-0" style={{ fontSize: '0.8rem' }}>
-                    {remaining} of {MAX_SESSIONS_PER_DAY} terms left today
-                </p>
-            </>
-        ) : (
-            <p className="mt-3 mb-0">
-                You have served all {MAX_SESSIONS_PER_DAY} terms today. The
-                Board reconvenes tomorrow.
+        <Button
+            size="lg"
+            variant="primary"
+            onClick={handleStartGame}
+            className="mt-3"
+        >
+            I accept
+        </Button>
+        {/* There is always a way in. Running out of terms means the next run
+            is not scored, not that the game is closed. */}
+        {signedIn && (
+            <p className="text-muted mt-3 mb-0" style={{ fontSize: '0.8rem' }}>
+                {remaining > 0
+                    ? `${remaining} of ${MAX_SESSIONS_PER_DAY} terms left today`
+                    : `All ${MAX_SESSIONS_PER_DAY} terms served today — play on, but this run will not be scored.`}
             </p>
         )}
     </>
@@ -56,6 +53,7 @@ const Welcome = ({ name, remaining, handleStartGame }) => (
 
 Welcome.propTypes = {
     remaining: number.isRequired,
+    signedIn: bool.isRequired,
     name: shape({
         first: string.isRequired,
         last: string.isRequired
@@ -72,7 +70,8 @@ Welcome.defaultProps = {
 
 const mapStateToProps = (state) => ({
     name: state.game.player.name,
-    remaining: sessionsRemaining(state)
+    remaining: sessionsRemaining(state),
+    signedIn: state.wallet.signedIn
 });
 
 const mapDispatchToProps = {

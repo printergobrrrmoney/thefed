@@ -74,24 +74,17 @@ export const SessionSummary = ({
                     Time in office: {duration(endedAt)}
                 </p>
 
-                {canPlayAgain ? (
-                    <Button
-                        size="lg"
-                        variant="primary"
-                        onClick={handleStartGame}
-                    >
-                        Serve another term
-                    </Button>
-                ) : (
-                    <p className="mb-3">
-                        That is all {MAX_SESSIONS_PER_DAY} terms for today. The
-                        Board reconvenes tomorrow.
-                    </p>
-                )}
+                <Button size="lg" variant="primary" onClick={handleStartGame}>
+                    Serve another term
+                </Button>
 
-                {canPlayAgain && (
+                {/* Out of terms means the next run is not scored, not that the
+                    game is over. There is always a way to keep playing. */}
+                {signedIn && (
                     <p className={classNames(styles.remaining, 'mt-3', 'mb-0')}>
-                        {remaining} of {MAX_SESSIONS_PER_DAY} terms left today
+                        {canPlayAgain
+                            ? `${remaining} of ${MAX_SESSIONS_PER_DAY} terms left today`
+                            : `All ${MAX_SESSIONS_PER_DAY} terms served today — play on, but the next run will not be scored.`}
                     </p>
                 )}
 
