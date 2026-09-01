@@ -56,3 +56,16 @@ create table if not exists daily_sessions (
     started  integer not null default 0,
     primary key (address, day)
 );
+
+-- Fixed-window rate limiting. A dedicated store would be faster, but this runs
+-- at the scale of people clicking a button, and one fewer service is one fewer
+-- thing to go wrong.
+create table if not exists rate_limits (
+    bucket        text not null,
+    identity      text not null,
+    window_start  timestamptz not null,
+    hits          integer not null default 0,
+    primary key (bucket, identity, window_start)
+);
+
+create index if not exists rate_limits_window_idx on rate_limits (window_start);

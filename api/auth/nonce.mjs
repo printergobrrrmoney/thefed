@@ -1,5 +1,6 @@
 import { db } from '../_lib/db.mjs';
 import { isValidAddress, newNonce } from '../_lib/crypto.mjs';
+import { rateLimit, identify } from '../_lib/rateLimit.mjs';
 import { json, badRequest, methodNotAllowed, readBody, domainOf } from '../_lib/http.mjs';
 import { NONCE_TTL_SECONDS } from '../../src/wallet/siws.js';
 
@@ -14,6 +15,12 @@ export default async function handler(req, res) {
 
     const { address } = readBody(req);
     if (!isValidAddress(address)) return badRequest(res, 'invalid-address');
+    const wait = await rateLimit('nonce', identify(req, address));
+    if (wait) {
+        res.setHeader('Retry-After', String(wait));
+        return json(res, 429, { error: 'rate-limited', retryAfter: wait });
+    }
+
 
     const sql = db();
     const nonce = newNonce();

@@ -1,5 +1,6 @@
 import { db } from '../_lib/db.mjs';
 import { addressFromRequest } from '../_lib/auth.mjs';
+import { rateLimit, identify } from '../_lib/rateLimit.mjs';
 import { json, badRequest, unauthorized, methodNotAllowed, readBody } from '../_lib/http.mjs';
 import { verifyLog } from '../../src/game-core/index.js';
 
@@ -15,6 +16,12 @@ export default async function handler(req, res) {
 
     const address = addressFromRequest(req);
     if (!address) return unauthorized(res);
+    const wait = await rateLimit('submit', identify(req, address));
+    if (wait) {
+        res.setHeader('Retry-After', String(wait));
+        return json(res, 429, { error: 'rate-limited', retryAfter: wait });
+    }
+
 
     const { sessionId, log } = readBody(req);
     if (!sessionId || !log) return badRequest(res, 'missing-log');

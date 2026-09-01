@@ -55,6 +55,10 @@ const RESERVED = [
     'thefed',
     'the fed',
     'printergobrrr',
+    'printergobrrrmoney',
+    'brrrmoney',
+    'moneyprinter',
+    'moneyprintergobrrr',
     'null',
     'undefined'
 ];

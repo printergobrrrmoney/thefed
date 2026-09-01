@@ -1,6 +1,7 @@
 import { randomUUID } from 'crypto';
 import { db } from '../_lib/db.mjs';
 import { addressFromRequest } from '../_lib/auth.mjs';
+import { rateLimit, identify } from '../_lib/rateLimit.mjs';
 import { json, unauthorized, methodNotAllowed } from '../_lib/http.mjs';
 import { CORE_VERSION, SESSION_SECONDS } from '../../src/game-core/index.js';
 
@@ -18,6 +19,12 @@ export default async function handler(req, res) {
 
     const address = addressFromRequest(req);
     if (!address) return unauthorized(res);
+    const wait = await rateLimit('start', identify(req, address));
+    if (wait) {
+        res.setHeader('Retry-After', String(wait));
+        return json(res, 429, { error: 'rate-limited', retryAfter: wait });
+    }
+
 
     const sql = db();
     const today = new Date().toISOString().slice(0, 10);

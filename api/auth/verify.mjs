@@ -1,6 +1,7 @@
 import { db } from '../_lib/db.mjs';
 import { isValidAddress, verifySignature } from '../_lib/crypto.mjs';
 import { issueToken } from '../_lib/auth.mjs';
+import { rateLimit, identify } from '../_lib/rateLimit.mjs';
 import { json, badRequest, unauthorized, methodNotAllowed, readBody, domainOf } from '../_lib/http.mjs';
 import { messageProblems } from '../../src/wallet/siws.js';
 
@@ -16,6 +17,12 @@ export default async function handler(req, res) {
 
     const { address, message, signature } = readBody(req);
     if (!isValidAddress(address)) return badRequest(res, 'invalid-address');
+    const wait = await rateLimit('verify', identify(req, address));
+    if (wait) {
+        res.setHeader('Retry-After', String(wait));
+        return json(res, 429, { error: 'rate-limited', retryAfter: wait });
+    }
+
     if (typeof message !== 'string' || typeof signature !== 'string') {
         return badRequest(res, 'missing-signature');
     }
