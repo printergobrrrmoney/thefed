@@ -35,7 +35,11 @@ export default async function handler(req, res) {
         res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
         return res.status(204).send('');
     }
-    if (req.method !== 'GET') return methodNotAllowed(res, ['GET']);
+    // HEAD is what link previews and uptime checks send; refusing it is a
+    // needless 405 in someone's logs.
+    if (req.method !== 'GET' && req.method !== 'HEAD') {
+        return methodNotAllowed(res, ['GET', 'HEAD', 'OPTIONS']);
+    }
 
     const day = SCHEDULE_START ? dayOfSchedule(SCHEDULE_START) : null;
     const live = day !== null && day >= 1 && day <= SCHEDULE_DAYS;
