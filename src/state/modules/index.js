@@ -7,13 +7,15 @@ import game from './game';
 import modal from './modal';
 import preferences from './preferences';
 import sessions from './sessions';
+import personalBest from './personalBest';
 import wallet from './wallet';
 import submission from './submission';
 
 const persistReducers = {
     game,
     preferences,
-    sessions
+    sessions,
+    personalBest
 };
 
 const configuredPersistReducers = Object.keys(persistReducers).reduce(

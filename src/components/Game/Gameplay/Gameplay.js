@@ -8,6 +8,7 @@ import { renderModal } from '../../../state/modules/modal';
 import Help from '../Help';
 import Store from './Store';
 import News from './News';
+import Leaderboard from '../../Leaderboard';
 import MoneyPrinting from './MoneyPrinting';
 import styles from './Gameplay.module.scss';
 
@@ -72,6 +73,9 @@ const Gameplay = ({
                     </Col>
                     <Col xs={{ span: 12, order: 3 }} md={{ span: 4, order: 3 }}>
                         <News />
+                        {/* Visible mid-run so a player can see what they are
+                            chasing rather than only afterwards. */}
+                        <Leaderboard compact className="mt-3 leaderboard-ingame" />
                     </Col>
                 </Row>
             </Container>

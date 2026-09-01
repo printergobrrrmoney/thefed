@@ -1,5 +1,6 @@
 import { isSessionOver, hasLapsed, closeSession, END_ABANDONED } from '../../game-core';
 import { submitSession, restoreSession } from '../modules/submission';
+import { recordPersonalBest } from '../modules/personalBest';
 import { restoreSignIn } from '../modules/wallet';
 import { restoreRecorder } from './recording';
 
@@ -50,8 +51,13 @@ const submitOnClose = (store) => (next) => (action) => {
     const after = store.getState().game;
 
     const justClosed = !isSessionOver(before) && isSessionOver(after);
-    if (justClosed && store.getState().submission.sessionId) {
-        store.dispatch(submitSession());
+    if (justClosed) {
+        // Every finished run counts for something, even an unscored one —
+        // otherwise playing without a wallet leaves nothing behind at all.
+        store.dispatch(recordPersonalBest(after.totalPrinted));
+        if (store.getState().submission.sessionId) {
+            store.dispatch(submitSession());
+        }
     }
 
     return result;

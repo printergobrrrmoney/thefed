@@ -38,6 +38,7 @@ const TopBar = ({
     mute,
     time,
     over,
+    scored,
     handleVolume,
     handleEndGame,
     handleRenderModal
@@ -80,6 +81,14 @@ const TopBar = ({
                     />
                 </Navbar.Brand>
                 <MoneyTicker />
+                {!over && !scored && (
+                    <span
+                        className="topbar-unscored ml-3"
+                        title="Connect a wallet before a run to have it counted"
+                    >
+                        not scored
+                    </span>
+                )}
                 {!over && (
                 <span
                     aria-label="Time remaining in this term"
@@ -138,15 +147,17 @@ TopBar.propTypes = {
     mute: bool.isRequired,
     time: number.isRequired,
     over: bool.isRequired,
+    scored: bool.isRequired,
     handleVolume: func.isRequired,
     handleEndGame: func.isRequired,
     handleRenderModal: func.isRequired
 };
 
-const mapStateToProps = ({ preferences: { mute }, game }) => ({
+const mapStateToProps = ({ preferences: { mute }, game, submission }) => ({
     mute,
     time: game.time,
-    over: isSessionOver(game)
+    over: isSessionOver(game),
+    scored: !!submission.sessionId
 });
 
 const mapDispatchToProps = {

@@ -1,8 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { string, bool } from 'prop-types';
+import { string, bool, number, func } from 'prop-types';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { Table, Form, Button } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+    faCircleCheck,
+    faCircleExclamation
+} from '@fortawesome/free-solid-svg-icons';
 import { fetchLeaderboard } from '../../api/client';
 import { shortAddress } from '../../wallet';
 import { chooseDisplayName } from '../../state/modules/wallet';
@@ -15,9 +20,11 @@ import commatize from '../../commatizeNumber';
 
 export const Leaderboard = ({
     className,
+    compact,
     address,
     displayName,
     signedIn,
+    best,
     handleChooseName
 }) => {
     const [entries, setEntries] = useState(null);
@@ -26,14 +33,17 @@ export const Leaderboard = ({
     const [error, setError] = useState(null);
     const [editing, setEditing] = useState(false);
 
+    const limit = compact ? 5 : 10;
+
     const load = () =>
-        fetchLeaderboard(10)
+        fetchLeaderboard(limit)
             .then((data) => setEntries(data.entries))
             .catch(() => setFailed(true));
 
     useEffect(() => {
         load();
-    }, [displayName]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [displayName, best]);
 
     const save = async (event) => {
         event.preventDefault();
@@ -52,41 +62,79 @@ export const Leaderboard = ({
         load();
     };
 
+    // An unscored player's own run sits in the standings where it would rank,
+    // so they can see both what they got and what it is missing. Without this,
+    // playing without a wallet leaves nothing behind at all, which reads as the
+    // game having lost the run.
+    const showGhost = !signedIn && best > 0;
+    const rows = (entries || []).map((entry) => ({ ...entry, verified: true }));
+    if (showGhost) {
+        rows.push({
+            address: 'local',
+            displayName: 'Your run',
+            score: best,
+            verified: false
+        });
+    }
+    rows.sort((a, b) => b.score - a.score);
+
     return (
         <div className={classNames('leaderboard', className)}>
-            <h3 className={'leaderboard-heading'}>Board of Governors</h3>
+            <h3 className="leaderboard-heading">Board of Governors</h3>
 
-            {failed && <p className={'leaderboard-empty'}>Standings unavailable.</p>}
+            {failed && (
+                <p className="leaderboard-empty">Standings unavailable.</p>
+            )}
 
-            {!failed && entries && entries.length === 0 && (
-                <p className={'leaderboard-empty'}>
+            {!failed && entries && rows.length === 0 && (
+                <p className="leaderboard-empty">
                     No verified runs yet. Be the first.
                 </p>
             )}
 
-            {!failed && entries && entries.length > 0 && (
-                <Table size="sm" className={'leaderboard-table'}>
+            {!failed && rows.length > 0 && (
+                <Table size="sm" className="leaderboard-table">
                     <tbody>
-                        {entries.map((entry) => (
+                        {rows.slice(0, limit).map((entry, index) => (
                             <tr
                                 key={entry.address}
-                                className={
-                                    entry.address === address
-                                        ? 'leaderboard-you'
-                                        : undefined
-                                }
+                                className={classNames(
+                                    entry.address === address &&
+                                        'leaderboard-you',
+                                    !entry.verified && 'leaderboard-ghost'
+                                )}
                             >
-                                <td className={'leaderboard-rank'}>{entry.rank}</td>
+                                <td className="leaderboard-rank">{index + 1}</td>
                                 {/* Plain text and always beside the address:
-                                    names are not unique, so the address is
-                                    what actually identifies a player. */}
-                                <td className={'leaderboard-name'}>
+                                    names are not unique, so the address is what
+                                    actually identifies a player. */}
+                                <td className="leaderboard-name">
+                                    <FontAwesomeIcon
+                                        icon={
+                                            entry.verified
+                                                ? faCircleCheck
+                                                : faCircleExclamation
+                                        }
+                                        className={classNames(
+                                            'mr-1',
+                                            entry.verified
+                                                ? 'leaderboard-verified'
+                                                : 'leaderboard-unsaved'
+                                        )}
+                                        title={
+                                            entry.verified
+                                                ? 'Verified by the server'
+                                                : 'Not saved — no wallet connected'
+                                        }
+                                    />
                                     {entry.displayName || 'Anonymous'}
-                                    <span className={'leaderboard-addr'}>
-                                        {shortAddress(entry.address)}
+                                    <span className="leaderboard-addr">
+                                        {entry.verified
+                                            ? shortAddress(entry.address)
+                                            : 'this browser only'}
                                     </span>
                                 </td>
-                                <td className={'leaderboard-amount'}>
+                                <td className="leaderboard-amount">
                                     ${commatize(entry.score)}
                                 </td>
                             </tr>
@@ -95,11 +143,18 @@ export const Leaderboard = ({
                 </Table>
             )}
 
-            {signedIn && !editing && (
+            {showGhost && (
+                <p className="leaderboard-empty">
+                    Connect a wallet before your next run to put it on the board
+                    for good.
+                </p>
+            )}
+
+            {signedIn && !editing && !compact && (
                 <Button
                     variant="link"
                     size="sm"
-                    className={'leaderboard-rename'}
+                    className="leaderboard-rename"
                     onClick={() => {
                         setDraft(displayName || '');
                         setEditing(true);
@@ -110,7 +165,7 @@ export const Leaderboard = ({
             )}
 
             {signedIn && editing && (
-                <Form onSubmit={save} className={'leaderboard-form'}>
+                <Form onSubmit={save} className="leaderboard-form">
                     <Form.Control
                         size="sm"
                         value={draft}
@@ -137,29 +192,33 @@ export const Leaderboard = ({
                 </Form>
             )}
 
-            {error && <p className={'leaderboard-error'}>{error}</p>}
+            {error && <p className="leaderboard-error">{error}</p>}
         </div>
     );
 };
 
 Leaderboard.propTypes = {
     className: string,
+    compact: bool,
     address: string,
     displayName: string,
     signedIn: bool.isRequired,
-    handleChooseName: Function
+    best: number.isRequired,
+    handleChooseName: func.isRequired
 };
 
 Leaderboard.defaultProps = {
     className: undefined,
+    compact: false,
     address: null,
     displayName: null
 };
 
-const mapStateToProps = ({ wallet }) => ({
+const mapStateToProps = ({ wallet, personalBest }) => ({
     address: wallet.address,
     displayName: wallet.displayName,
-    signedIn: wallet.signedIn
+    signedIn: wallet.signedIn,
+    best: personalBest.score
 });
 
 const mapDispatchToProps = {

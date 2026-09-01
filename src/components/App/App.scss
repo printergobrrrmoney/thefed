@@ -133,3 +133,26 @@ noscript {
     color: #adb5bd;
     line-height: 1.1;
 }
+
+.leaderboard-verified { color: #1b7d3a; }
+.leaderboard-unsaved { color: #b8860b; }
+
+.leaderboard-ghost td {
+    background: #fffbf0;
+    font-style: italic;
+}
+
+.leaderboard-ingame {
+    background: rgba(255, 255, 255, 0.94);
+    border-radius: 0.3rem;
+    padding: 0.6rem 0.8rem;
+    max-width: none;
+}
+
+.topbar-unscored {
+    font-family: 'VT323', monospace;
+    font-size: 1rem;
+    letter-spacing: 0.04em;
+    color: #ffc107;
+    white-space: nowrap;
+}
