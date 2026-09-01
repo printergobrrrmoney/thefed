@@ -5,6 +5,7 @@ import recording, {
     currentRecorder,
     resetRecorder,
     restoreRecorder,
+    attachServerSession,
     STORAGE_KEY
 } from './recording';
 import game, { setPlayer, endGame } from '../modules/game';
@@ -223,5 +224,48 @@ describe('surviving a reload', () => {
             configurable: true,
             value: real
         });
+    });
+});
+
+describe('the server session id', () => {
+    it('is stored alongside the log once the scored session opens', () => {
+        const store = makeStore();
+        start(store);
+        attachServerSession('server-side-uuid');
+
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        expect(saved.serverSessionId).toBe('server-side-uuid');
+        // The game's own id is a different thing and must not be confused for it.
+        expect(saved.sessionId).not.toBe('server-side-uuid');
+    });
+
+    it('comes back on restore, so the run can still be submitted', () => {
+        const store = makeStore();
+        start(store);
+        attachServerSession('server-side-uuid');
+        store.dispatch(printMoney(1));
+
+        resetRecorderMemoryOnly();
+        expect(restoreRecorder().serverSessionId).toBe('server-side-uuid');
+    });
+
+    it('is absent for an unscored run', () => {
+        const store = makeStore();
+        start(store);
+        store.dispatch(printMoney(1));
+
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        expect(saved.serverSessionId).toBeNull();
+    });
+
+    it('does not carry over into the next session', () => {
+        const store = makeStore();
+        start(store);
+        attachServerSession('first');
+        start(store);
+
+        expect(
+            JSON.parse(localStorage.getItem(STORAGE_KEY)).serverSessionId
+        ).toBeNull();
     });
 });

@@ -23,8 +23,8 @@ const submitOnClose = (store) => (next) => (action) => {
         // submitted, and restoring the log alone would still lose the run.
         store.dispatch(restoreSignIn());
         const saved = restoreRecorder();
-        if (saved && saved.sessionId) {
-            store.dispatch(restoreSession(saved.sessionId));
+        if (saved && saved.serverSessionId) {
+            store.dispatch(restoreSession(saved.serverSessionId));
             // If it ended while the page was away, it still needs submitting.
             if (isSessionOver(store.getState().game)) {
                 store.dispatch(submitSession());

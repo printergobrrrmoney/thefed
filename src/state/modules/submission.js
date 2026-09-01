@@ -1,5 +1,5 @@
 import * as api from '../../api/client';
-import { currentLog } from '../middleware/recording';
+import { currentLog, attachServerSession } from '../middleware/recording';
 
 /**
  * Sending a finished session to be scored.
@@ -65,6 +65,7 @@ const messages = {
 export const openSession = () => async (dispatch) => {
     try {
         const session = await api.startSession();
+        attachServerSession(session.sessionId);
         dispatch({ type: SESSION_OPENED, sessionId: session.sessionId });
         return session;
     } catch (error) {

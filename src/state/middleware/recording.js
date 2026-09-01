@@ -22,6 +22,15 @@ export const STORAGE_KEY = 'thefed:log';
 
 let recorder = null;
 
+/**
+ * The server's id for this session, which is not the same as the game's own.
+ * The game assigns itself a uuid the moment a run starts; the server assigns
+ * its own when the scored session opens, a request later. Submission needs the
+ * server's, so it is stored alongside the log — otherwise a reload restores the
+ * run and then submits it against an id the server has never heard of.
+ */
+let serverSessionId = null;
+
 export const currentRecorder = () => recorder;
 
 export const currentLog = () => (recorder ? recorder.toLog(Date.now()) : null);
@@ -43,6 +52,7 @@ const save = () => {
             STORAGE_KEY,
             JSON.stringify({
                 sessionId: recorder.sessionId,
+                serverSessionId,
                 startedAt: recorder.startedAt,
                 actions: recorder.toLog(Date.now()).actions
             })
@@ -55,6 +65,7 @@ const save = () => {
 
 const forget = () => {
     recorder = null;
+    serverSessionId = null;
     const store = storage();
     if (!store) return;
     try {
@@ -84,7 +95,14 @@ export const restoreRecorder = () => {
     const saved = readStoredLog();
     if (!saved) return null;
     recorder = createRecorder(saved);
+    serverSessionId = saved.serverSessionId || null;
     return saved;
+};
+
+/** Called once the scored session exists, so a reload can still submit it. */
+export const attachServerSession = (id) => {
+    serverSessionId = id;
+    save();
 };
 
 /**
@@ -106,6 +124,7 @@ const recording = (store) => (next) => (action) => {
             sessionId: store.getState().game.id,
             startedAt: Date.now()
         });
+        serverSessionId = null;
         save();
         return result;
     }
