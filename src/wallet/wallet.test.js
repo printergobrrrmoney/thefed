@@ -1,10 +1,10 @@
-import { detectWallets, availableWallets, isUsable } from './providers';
+import { detectWallets, availableWallets, isUsable } from './providers.js';
 import {
     buildSignInMessage,
     parseSignInMessage,
     messageProblems,
     SIGN_IN_STATEMENT
-} from './siws';
+} from './siws.js';
 import {
     connect,
     signIn,
@@ -12,7 +12,7 @@ import {
     shortAddress,
     utf8Bytes,
     ERRORS
-} from './connect';
+} from './connect.js';
 
 const ADDRESS = '7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU';
 

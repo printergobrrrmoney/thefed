@@ -6,12 +6,12 @@
  * sees a seed phrase. Anything claiming to be The Fed that asks you to approve
  * a transaction is not this site.
  */
-export { WALLETS, detectWallets, availableWallets, findWallet, isUsable } from './providers';
+export { WALLETS, detectWallets, availableWallets, findWallet, isUsable } from './providers.js';
 export {
     SIGN_IN_STATEMENT,
     NONCE_TTL_SECONDS,
     buildSignInMessage,
     parseSignInMessage,
     messageProblems
-} from './siws';
-export { ERRORS, connect, signIn, disconnect, shortAddress, toBase64, utf8Bytes } from './connect';
+} from './siws.js';
+export { ERRORS, connect, signIn, disconnect, shortAddress, toBase64, utf8Bytes } from './connect.js';

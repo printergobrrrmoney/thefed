@@ -1,5 +1,5 @@
-import { findWallet, isUsable } from './providers';
-import { buildSignInMessage } from './siws';
+import { findWallet, isUsable } from './providers.js';
+import { buildSignInMessage } from './siws.js';
 
 /**
  * Connect and sign in.
