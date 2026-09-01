@@ -12,6 +12,7 @@ import {
     START_GAME,
     END_GAME,
     INCREMENT_TIMER,
+    CLOSE_SESSION,
     closeSession
 } from '../../game-core';
 
@@ -75,7 +76,9 @@ const newsReducer = (state, key, newsFunc) => ({
 });
 
 export default (state = initialState, action = {}) => {
-    if (isEconomicAction(action.type)) {
+    // CLOSE_SESSION is not an economic action, but the core is what knows how
+    // to close a session, so it has to be delegated too.
+    if (isEconomicAction(action.type) || action.type === CLOSE_SESSION) {
         const next = coreReducer(state, action);
 
         // News is flavour, not economy, so it is applied here rather than
