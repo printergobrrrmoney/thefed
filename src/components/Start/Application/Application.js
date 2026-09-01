@@ -54,9 +54,18 @@ const Application = ({ signedIn, handleSetPlayer, handleChooseName, handleNext }
         handleNext();
     };
 
+    // These are a joke, not data: nothing reads them and nothing depends on
+    // them. They are marked optional so nobody fills them in believing
+    // otherwise, and left in because declaring your crimes to the Fed is the
+    // best part of the form.
     const CrimeFormGroup = ({ label, unit, verb, ...props }) => (
         <FormGroup {...props}>
-            <Form.Label>{label}</Form.Label>
+            <Form.Label>
+                {label}{' '}
+                <span className="text-muted" style={{ fontWeight: 400 }}>
+                    (optional)
+                </span>
+            </Form.Label>
             <InputGroup>
                 <InputGroup.Prepend>
                     <InputGroup.Text>$</InputGroup.Text>

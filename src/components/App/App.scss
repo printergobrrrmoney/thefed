@@ -51,3 +51,85 @@ noscript {
     max-width: 600px;
     text-align: center;
 }
+
+
+// Leaderboard — global rather than a CSS module because it is rendered from
+// two lazily-loaded chunks, which webpack cannot order consistently.
+.leaderboard {
+    text-align: left;
+    max-width: 22rem;
+    margin: 0 auto;
+}
+
+.leaderboard-heading {
+    font-family: 'VT323', monospace;
+    font-size: 1.4rem;
+    text-align: center;
+    margin-bottom: 0.5rem;
+}
+
+.leaderboard-table {
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.leaderboard-table td {
+    border-top: 1px solid #eee;
+    padding: 0.3rem 0.4rem;
+    vertical-align: middle;
+}
+
+.leaderboard-rank {
+    width: 2rem;
+    color: #adb5bd;
+    font-variant-numeric: tabular-nums;
+}
+
+.leaderboard-name {
+    word-break: break-all;
+}
+
+.leaderboard-amount {
+    text-align: right;
+    font-family: 'VT323', monospace;
+    font-size: 1.05rem;
+    color: #1b7d3a;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.leaderboard-you td {
+    font-weight: 600;
+    background: #f4f9f5;
+}
+
+.leaderboard-empty,
+.leaderboard-error {
+    font-size: 0.8rem;
+    color: #6c757d;
+    text-align: center;
+}
+
+.leaderboard-error {
+    color: #b3261e;
+}
+
+.leaderboard-rename {
+    font-size: 0.78rem;
+    display: block;
+    margin: 0 auto;
+}
+
+.leaderboard-form {
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+}
+
+.leaderboard-addr {
+    display: block;
+    font-family: 'VT323', monospace;
+    font-size: 0.8rem;
+    color: #adb5bd;
+    line-height: 1.1;
+}

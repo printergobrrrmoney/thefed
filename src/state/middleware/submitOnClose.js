@@ -1,4 +1,4 @@
-import { isSessionOver } from '../../game-core';
+import { isSessionOver, hasLapsed, closeSession, END_ABANDONED } from '../../game-core';
 import { submitSession, restoreSession } from '../modules/submission';
 import { restoreSignIn } from '../modules/wallet';
 import { restoreRecorder } from './recording';
@@ -23,6 +23,18 @@ const submitOnClose = (store) => (next) => (action) => {
         // submitted, and restoring the log alone would still lose the run.
         store.dispatch(restoreSignIn());
         const saved = restoreRecorder();
+
+        // A term left running for hours is not still in progress. Close it
+        // before anything else, so what gets submitted is the run as it
+        // actually was rather than one that appears to still be going.
+        if (
+            saved &&
+            !isSessionOver(store.getState().game) &&
+            hasLapsed(saved.startedAt)
+        ) {
+            store.dispatch(closeSession(END_ABANDONED));
+        }
+
         if (saved && saved.serverSessionId) {
             store.dispatch(restoreSession(saved.serverSessionId));
             // If it ended while the page was away, it still needs submitting.

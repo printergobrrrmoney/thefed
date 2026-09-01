@@ -12,7 +12,6 @@ import {
     MAX_LENGTH
 } from '../../leaderboard/displayName';
 import commatize from '../../commatizeNumber';
-import styles from './Leaderboard.module.scss';
 
 export const Leaderboard = ({
     className,
@@ -54,40 +53,40 @@ export const Leaderboard = ({
     };
 
     return (
-        <div className={classNames(styles.root, className)}>
-            <h3 className={styles.heading}>Board of Governors</h3>
+        <div className={classNames('leaderboard', className)}>
+            <h3 className={'leaderboard-heading'}>Board of Governors</h3>
 
-            {failed && <p className={styles.empty}>Standings unavailable.</p>}
+            {failed && <p className={'leaderboard-empty'}>Standings unavailable.</p>}
 
             {!failed && entries && entries.length === 0 && (
-                <p className={styles.empty}>
+                <p className={'leaderboard-empty'}>
                     No verified runs yet. Be the first.
                 </p>
             )}
 
             {!failed && entries && entries.length > 0 && (
-                <Table size="sm" className={styles.table}>
+                <Table size="sm" className={'leaderboard-table'}>
                     <tbody>
                         {entries.map((entry) => (
                             <tr
                                 key={entry.address}
                                 className={
                                     entry.address === address
-                                        ? styles.you
+                                        ? 'leaderboard-you'
                                         : undefined
                                 }
                             >
-                                <td className={styles.rank}>{entry.rank}</td>
+                                <td className={'leaderboard-rank'}>{entry.rank}</td>
                                 {/* Plain text and always beside the address:
                                     names are not unique, so the address is
                                     what actually identifies a player. */}
-                                <td className={styles.name}>
+                                <td className={'leaderboard-name'}>
                                     {entry.displayName || 'Anonymous'}
-                                    <span className={styles.addr}>
+                                    <span className={'leaderboard-addr'}>
                                         {shortAddress(entry.address)}
                                     </span>
                                 </td>
-                                <td className={styles.amount}>
+                                <td className={'leaderboard-amount'}>
                                     ${commatize(entry.score)}
                                 </td>
                             </tr>
@@ -100,7 +99,7 @@ export const Leaderboard = ({
                 <Button
                     variant="link"
                     size="sm"
-                    className={styles.rename}
+                    className={'leaderboard-rename'}
                     onClick={() => {
                         setDraft(displayName || '');
                         setEditing(true);
@@ -111,7 +110,7 @@ export const Leaderboard = ({
             )}
 
             {signedIn && editing && (
-                <Form onSubmit={save} className={styles.form}>
+                <Form onSubmit={save} className={'leaderboard-form'}>
                     <Form.Control
                         size="sm"
                         value={draft}
@@ -138,7 +137,7 @@ export const Leaderboard = ({
                 </Form>
             )}
 
-            {error && <p className={styles.error}>{error}</p>}
+            {error && <p className={'leaderboard-error'}>{error}</p>}
         </div>
     );
 };

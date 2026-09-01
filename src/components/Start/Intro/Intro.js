@@ -1,6 +1,7 @@
 import React from 'react';
 import { func } from 'prop-types';
 import { Button } from 'react-bootstrap';
+import Leaderboard from '../../Leaderboard';
 
 const Intro = ({ handleNext }) => (
     <>
@@ -16,6 +17,10 @@ const Intro = ({ handleNext }) => (
         <Button size="lg" variant="primary" onClick={handleNext}>
             Start Your Application
         </Button>
+        {/* Anyone can see who is winning, wallet or not — it is the reason to
+            come back, and hiding it behind a finished run hid it from everyone
+            who had not played yet. */}
+        <Leaderboard className="mt-4" />
     </>
 );
 

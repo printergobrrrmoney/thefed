@@ -35,8 +35,11 @@ export {
     END_DURATION,
     END_IDLE,
     END_RESIGNED,
+    END_ABANDONED,
+    ABANDON_AFTER_SECONDS,
     END_REASONS,
     isSessionOver,
+    hasLapsed,
     secondsRemaining,
     idleSecondsRemaining
 } from './session.js';
