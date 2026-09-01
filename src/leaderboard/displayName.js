@@ -10,7 +10,7 @@
  * feedback, the server uses it because the browser's opinion does not count.
  */
 export const MIN_LENGTH = 2;
-export const MAX_LENGTH = 20;
+export const MAX_LENGTH = 24;
 
 export const REASONS = {
     TOO_SHORT: 'too-short',
@@ -23,17 +23,20 @@ export const REASONS = {
 export const MESSAGES = {
     [REASONS.TOO_SHORT]: `At least ${MIN_LENGTH} characters.`,
     [REASONS.TOO_LONG]: `At most ${MAX_LENGTH} characters.`,
-    [REASONS.CHARACTERS]: 'Letters, numbers, spaces, hyphens and underscores only.',
+    [REASONS.CHARACTERS]: 'Letters, numbers, spaces, apostrophes and hyphens only.',
     [REASONS.LINK]: 'Names cannot contain web addresses.',
     [REASONS.IMPERSONATION]: 'That name is reserved.'
 };
 
 /**
- * Deliberately a strict allow-list rather than a block-list of bad characters.
- * It also rules out homoglyph attacks — a Cyrillic "а" cannot pass, so nobody
- * can impersonate an existing player with a lookalike name.
+ * An allow-list rather than a block-list, so anything unforeseen is refused by
+ * default. Latin letters with diacritics and apostrophes are in, because real
+ * names have them and rejecting José or O'Brien is not a security measure.
+ * Other scripts stay out: not because names are unique — they are not — but
+ * because a name in Cyrillic that renders as "Official BRRR" is confusing
+ * whatever else is on the row.
  */
-const ALLOWED = /^[A-Za-z0-9 _-]+$/;
+const ALLOWED = /^[A-Za-zÀ-ɏ0-9 '_-]+$/;
 
 const LINKISH = /(https?:|www\.|\.com|\.io|\.xyz|\.money|\.net|\.org|\.app|\.co\b)/i;
 

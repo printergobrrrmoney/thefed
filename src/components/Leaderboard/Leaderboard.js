@@ -14,11 +14,6 @@ import {
 import commatize from '../../commatizeNumber';
 import styles from './Leaderboard.module.scss';
 
-const nameErrors = {
-    'name-taken': 'Someone already has that name.',
-    'no-verified-session': 'Finish a scored run first.'
-};
-
 export const Leaderboard = ({
     className,
     address,
@@ -50,7 +45,7 @@ export const Leaderboard = ({
         }
         const code = await handleChooseName(draft);
         if (code) {
-            setError(nameErrors[code] || 'That name was not accepted.');
+            setError('That name was not accepted.');
             return;
         }
         setError(null);
@@ -83,11 +78,14 @@ export const Leaderboard = ({
                                 }
                             >
                                 <td className={styles.rank}>{entry.rank}</td>
-                                {/* Plain text, never a link: a name is player
-                                    input on a public page. */}
+                                {/* Plain text and always beside the address:
+                                    names are not unique, so the address is
+                                    what actually identifies a player. */}
                                 <td className={styles.name}>
-                                    {entry.displayName ||
-                                        shortAddress(entry.address)}
+                                    {entry.displayName || 'Anonymous'}
+                                    <span className={styles.addr}>
+                                        {shortAddress(entry.address)}
+                                    </span>
                                 </td>
                                 <td className={styles.amount}>
                                     ${commatize(entry.score)}
@@ -108,7 +106,7 @@ export const Leaderboard = ({
                         setEditing(true);
                     }}
                 >
-                    {displayName ? 'Change your name' : 'Choose a name'}
+                    {displayName ? 'Change your name' : 'Name yourself'}
                 </Button>
             )}
 

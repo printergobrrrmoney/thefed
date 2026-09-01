@@ -4,6 +4,9 @@ import { json, methodNotAllowed } from './_lib/http.mjs';
 /**
  * Best verified score per player. Only sessions that survived replay count, so
  * this is a table of what the server recomputed, not what any client reported.
+ *
+ * The address always comes back alongside the name, because names are not
+ * unique — the address is what actually identifies a player.
  */
 export default async function handler(req, res) {
     if (req.method !== 'GET') return methodNotAllowed(res, ['GET']);

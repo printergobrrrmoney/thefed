@@ -1,0 +1,37 @@
+.root {
+    text-align: left;
+    padding: 0.9rem 1rem;
+    margin-bottom: 1rem;
+    border: 1px dashed #ced4da;
+    border-radius: 0.3rem;
+    background: #fbfbfa;
+}
+
+.done {
+    border-style: solid;
+    border-color: #bcdfc6;
+    background: #f4f9f5;
+    color: #1b7d3a;
+    font-size: 0.9rem;
+}
+
+.lead {
+    font-size: 0.92rem;
+    margin-bottom: 0.6rem;
+}
+
+.choices {
+    flex-wrap: wrap;
+}
+
+.note {
+    font-size: 0.76rem;
+    color: #6c757d;
+    margin: 0.6rem 0 0;
+}
+
+.error {
+    font-size: 0.78rem;
+    color: #b3261e;
+    margin: 0.4rem 0 0;
+}
