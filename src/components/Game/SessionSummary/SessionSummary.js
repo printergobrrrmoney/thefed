@@ -11,6 +11,7 @@ import {
 } from '../../../state/modules/sessions';
 import commatize from '../../../commatizeNumber';
 import Leaderboard from '../../Leaderboard';
+import Rewards from '../../Rewards';
 import styles from './SessionSummary.module.scss';
 
 const duration = (seconds) => {
@@ -97,6 +98,7 @@ export const SessionSummary = ({
                 </Button>
 
                 <Leaderboard className="mt-4" />
+                <Rewards compact className="mt-4" />
             </Card>
         </Container>
     );

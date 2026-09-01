@@ -2,6 +2,7 @@ import React from 'react';
 import { func } from 'prop-types';
 import { Button } from 'react-bootstrap';
 import Leaderboard from '../../Leaderboard';
+import Rewards from '../../Rewards';
 
 const Intro = ({ handleNext }) => (
     <>
@@ -21,6 +22,8 @@ const Intro = ({ handleNext }) => (
             come back, and hiding it behind a finished run hid it from everyone
             who had not played yet. */}
         <Leaderboard className="mt-4" />
+        <hr className="mt-4" />
+        <Rewards />
     </>
 );
 

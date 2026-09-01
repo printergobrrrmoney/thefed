@@ -156,3 +156,93 @@ noscript {
     color: #ffc107;
     white-space: nowrap;
 }
+
+// Rewards — global rather than a CSS module because it renders from more than
+// one lazily-loaded chunk, which webpack cannot order consistently.
+.rewards {
+    text-align: left;
+    max-width: 34rem;
+    margin: 0 auto;
+}
+
+.rewards-heading {
+    font-family: 'VT323', monospace;
+    font-size: 1.5rem;
+    text-align: center;
+    margin-bottom: 0.75rem;
+}
+
+.rewards-note {
+    font-size: 0.8rem;
+    text-align: center;
+    color: #8a6212;
+    background: #fdf6e3;
+    border: 1px solid #f0e2bd;
+    border-radius: 0.25rem;
+    padding: 0.45rem 0.6rem;
+    margin-bottom: 0.9rem;
+}
+
+.rewards-facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
+    margin: 0 0 1rem;
+}
+
+.rewards-facts dt {
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #6c757d;
+    font-weight: 400;
+    margin-bottom: 0.15rem;
+}
+
+.rewards-facts dd {
+    font-family: 'VT323', monospace;
+    font-size: 1.3rem;
+    line-height: 1.1;
+    color: #1b7d3a;
+    margin: 0;
+}
+
+.rewards-facts dd span {
+    display: block;
+    font-family: inherit;
+    font-size: 0.72rem;
+    color: #adb5bd;
+    letter-spacing: 0;
+}
+
+.rewards-lead {
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+.rewards-table-wrap { overflow-x: auto; }
+
+.rewards-table {
+    font-size: 0.82rem;
+    margin-bottom: 0.6rem;
+}
+
+.rewards-table th,
+.rewards-table td { padding: 0.3rem 0.45rem; }
+
+.rewards-table .num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.rewards-holds {
+    display: block;
+    font-size: 0.7rem;
+    color: #adb5bd;
+}
+
+.rewards-fine {
+    font-size: 0.76rem;
+    color: #6c757d;
+    line-height: 1.45;
+}
