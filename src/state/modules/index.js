@@ -8,6 +8,7 @@ import modal from './modal';
 import preferences from './preferences';
 import sessions from './sessions';
 import wallet from './wallet';
+import submission from './submission';
 
 const persistReducers = {
     game,
@@ -36,6 +37,7 @@ const createRootReducer = history =>
         router: connectRouter(history),
         modal,
         wallet,
+        submission,
         ...configuredPersistReducers
     });
 

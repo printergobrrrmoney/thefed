@@ -5,12 +5,13 @@ import thunk from 'redux-thunk';
 import { createBrowserHistory } from 'history';
 import createRootReducer from '../modules';
 import recording from '../middleware/recording';
+import submitOnClose from '../middleware/submitOnClose';
 
 const history = createBrowserHistory();
 
 const configureStore = () => {
     // Middeware
-    const middleware = [thunk, routerMiddleware(history), recording];
+    const middleware = [thunk, routerMiddleware(history), recording, submitOnClose];
 
     // Create Store
     const initialState = {};

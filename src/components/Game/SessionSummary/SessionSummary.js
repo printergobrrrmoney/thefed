@@ -1,5 +1,5 @@
 import React from 'react';
-import { number, string, func } from 'prop-types';
+import { number, string, func, bool, arrayOf } from 'prop-types';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { Container, Card, Button } from 'react-bootstrap';
@@ -10,6 +10,7 @@ import {
     MAX_SESSIONS_PER_DAY
 } from '../../../state/modules/sessions';
 import commatize from '../../../commatizeNumber';
+import Leaderboard from '../../Leaderboard';
 import styles from './SessionSummary.module.scss';
 
 const duration = (seconds) => {
@@ -23,6 +24,10 @@ export const SessionSummary = ({
     endedAt,
     endedReason,
     remaining,
+    verified,
+    submitting,
+    problems,
+    signedIn,
     handleStartGame,
     handleEndGame
 }) => {
@@ -48,8 +53,22 @@ export const SessionSummary = ({
                 <p className={classNames(styles.label, 'mb-0')}>
                     Total printed
                 </p>
-                <p className={classNames(styles.score, 'mb-3')}>
-                    ${commatize(totalPrinted)}
+                <p className={classNames(styles.score, 'mb-1')}>
+                    ${commatize(verified !== null ? verified : totalPrinted)}
+                </p>
+                <p className={classNames(styles.verdict, 'mb-3')}>
+                    {submitting && 'Checking your run…'}
+                    {!submitting && verified !== null && 'Verified by the server'}
+                    {!submitting && problems && problems.length > 0 && (
+                        <span className="text-danger">
+                            Not counted: {problems.join(', ')}
+                        </span>
+                    )}
+                    {!submitting &&
+                        verified === null &&
+                        !problems &&
+                        !signedIn &&
+                        'Sign in before playing to have a run counted'}
                 </p>
                 <p className="text-muted mb-4">
                     Time in office: {duration(endedAt)}
@@ -83,6 +102,8 @@ export const SessionSummary = ({
                 >
                     Leave the Fed
                 </Button>
+
+                <Leaderboard className="mt-4" />
             </Card>
         </Container>
     );
@@ -90,6 +111,10 @@ export const SessionSummary = ({
 
 SessionSummary.propTypes = {
     totalPrinted: number.isRequired,
+    verified: number,
+    submitting: bool.isRequired,
+    problems: arrayOf(string),
+    signedIn: bool.isRequired,
     endedAt: number.isRequired,
     endedReason: string,
     remaining: number.isRequired,
@@ -98,14 +123,20 @@ SessionSummary.propTypes = {
 };
 
 SessionSummary.defaultProps = {
-    endedReason: END_RESIGNED
+    endedReason: END_RESIGNED,
+    verified: null,
+    problems: null
 };
 
 const mapStateToProps = (state) => ({
     totalPrinted: state.game.totalPrinted,
     endedAt: state.game.endedAt,
     endedReason: state.game.endedReason,
-    remaining: sessionsRemaining(state)
+    remaining: sessionsRemaining(state),
+    verified: state.submission.score,
+    submitting: state.submission.submitting,
+    problems: state.submission.problems,
+    signedIn: state.wallet.signedIn
 });
 
 const mapDispatchToProps = {

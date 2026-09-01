@@ -6,6 +6,7 @@ import { createLogger } from 'redux-logger';
 import { createBrowserHistory } from 'history';
 import createRootReducer from '../modules';
 import recording from '../middleware/recording';
+import submitOnClose from '../middleware/submitOnClose';
 
 const history = createBrowserHistory();
 
@@ -24,6 +25,7 @@ const configureStore = () => {
         thunk,
         routerMiddleware(history),
         recording,
+        submitOnClose,
         createLogger()
     ];
 

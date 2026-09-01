@@ -7,7 +7,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faWallet } from '@fortawesome/free-solid-svg-icons';
 import { availableWallets, detectWallets, shortAddress } from '../../../../wallet';
 import {
-    connectWallet,
+    connectAndSignIn,
+    signIn,
     disconnectWallet
 } from '../../../../state/modules/wallet';
 import styles from './ConnectWallet.module.scss';
@@ -15,8 +16,11 @@ import styles from './ConnectWallet.module.scss';
 export const ConnectWallet = ({
     address,
     connecting,
+    signingIn,
+    signedIn,
     error,
     handleConnect,
+    handleSignIn,
     handleDisconnect
 }) => {
     // Read once per open: wallets inject on load, and re-detecting on every
@@ -44,6 +48,11 @@ export const ConnectWallet = ({
                         {address}
                     </Dropdown.Header>
                     <Dropdown.Divider />
+                    {!signedIn && (
+                        <Dropdown.Item onClick={handleSignIn}>
+                            Sign in to be scored
+                        </Dropdown.Item>
+                    )}
                     <Dropdown.Item onClick={handleDisconnect}>
                         Disconnect
                     </Dropdown.Item>
@@ -58,11 +67,11 @@ export const ConnectWallet = ({
                 variant="outline-light"
                 size="sm"
                 id="wallet-connect"
-                disabled={connecting}
+                disabled={connecting || signingIn}
                 className={styles.button}
             >
                 <FontAwesomeIcon icon={faWallet} className="mr-2" />
-                {connecting ? 'Connecting…' : 'Connect wallet'}
+                {connecting || signingIn ? 'Connecting…' : 'Connect wallet'}
             </Dropdown.Toggle>
             <Dropdown.Menu>
                 <Dropdown.Header className={styles.note}>
@@ -109,6 +118,9 @@ ConnectWallet.propTypes = {
     connecting: bool.isRequired,
     error: string,
     handleConnect: func.isRequired,
+    handleSignIn: func.isRequired,
+    signingIn: bool.isRequired,
+    signedIn: bool.isRequired,
     handleDisconnect: func.isRequired,
     wallets: arrayOf(shape({}))
 };
@@ -119,14 +131,17 @@ ConnectWallet.defaultProps = {
     wallets: undefined
 };
 
-const mapStateToProps = ({ wallet: { address, connecting, error } }) => ({
-    address,
-    connecting,
-    error
+const mapStateToProps = ({ wallet }) => ({
+    address: wallet.address,
+    connecting: wallet.connecting,
+    signingIn: wallet.signingIn,
+    signedIn: wallet.signedIn,
+    error: wallet.error
 });
 
 const mapDispatchToProps = {
-    handleConnect: connectWallet,
+    handleConnect: connectAndSignIn,
+    handleSignIn: signIn,
     handleDisconnect: disconnectWallet
 };
 

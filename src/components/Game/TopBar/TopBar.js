@@ -12,7 +12,7 @@ import {
     faQuestionCircle,
     faTimesCircle
 } from '@fortawesome/free-solid-svg-icons';
-import { closeSession } from '../../../state/modules/game';
+import { finishSession } from '../../../state/modules/game';
 import {
     END_RESIGNED,
     SESSION_SECONDS,
@@ -153,7 +153,7 @@ const mapDispatchToProps = {
     handleVolume: toggleVolume,
     // Resigning closes the session so the summary can show a final score,
     // rather than wiping the run outright.
-    handleEndGame: () => closeSession(END_RESIGNED),
+    handleEndGame: () => finishSession(END_RESIGNED),
     handleRenderModal: renderModal
 };
 

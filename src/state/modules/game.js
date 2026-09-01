@@ -1,6 +1,7 @@
 import uuid from 'uuid/v4';
 import { push } from 'connected-react-router';
 import { recordSession } from './sessions';
+import { openSession, submitSession } from './submission';
 import ciaUpdate from './news/ciaUpdate';
 import trumpTweet from './news/trumpTweet';
 import {
@@ -10,7 +11,8 @@ import {
     SET_PLAYER,
     START_GAME,
     END_GAME,
-    INCREMENT_TIMER
+    INCREMENT_TIMER,
+    closeSession
 } from '../../game-core';
 
 import rubberStamp from '../../storeImages/rubber-stamp.jpg';
@@ -121,10 +123,22 @@ export const setPlayer = (player) => ({
     player
 });
 
-export const startGame = () => (dispatch) => {
+export const startGame = () => (dispatch, getState) => {
     dispatch(recordSession());
     dispatch({ type: START_GAME });
     dispatch(push('/'));
+    // Only signed-in players get a scored session. Everyone else can still
+    // play; their run simply is not attributed to anyone.
+    if (getState().wallet.signedIn) dispatch(openSession());
+};
+
+/**
+ * Close the run and, if it was a scored session, send the log to be replayed.
+ * The score the server returns is the one that counts.
+ */
+export const finishSession = (reason) => (dispatch, getState) => {
+    dispatch(closeSession(reason));
+    if (getState().submission.sessionId) dispatch(submitSession());
 };
 
 export const endGame = () => ({ type: END_GAME });

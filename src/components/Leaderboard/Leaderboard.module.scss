@@ -1,0 +1,70 @@
+.root {
+    text-align: left;
+    max-width: 22rem;
+    margin: 0 auto;
+}
+
+.heading {
+    font-family: 'VT323', monospace;
+    font-size: 1.4rem;
+    text-align: center;
+    margin-bottom: 0.5rem;
+}
+
+.table {
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.table td {
+    border-top: 1px solid #eee;
+    padding: 0.3rem 0.4rem;
+    vertical-align: middle;
+}
+
+.rank {
+    width: 2rem;
+    color: #adb5bd;
+    font-variant-numeric: tabular-nums;
+}
+
+.name {
+    word-break: break-all;
+}
+
+.amount {
+    text-align: right;
+    font-family: 'VT323', monospace;
+    font-size: 1.05rem;
+    color: #1b7d3a;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.you td {
+    font-weight: 600;
+    background: #f4f9f5;
+}
+
+.empty,
+.error {
+    font-size: 0.8rem;
+    color: #6c757d;
+    text-align: center;
+}
+
+.error {
+    color: #b3261e;
+}
+
+.rename {
+    font-size: 0.78rem;
+    display: block;
+    margin: 0 auto;
+}
+
+.form {
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+}
