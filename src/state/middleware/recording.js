@@ -6,20 +6,85 @@ import { START_GAME, END_GAME } from '../../game-core';
  *
  * The log lives here rather than in the store because it is evidence about a
  * session, not part of its state: putting it in the reducer would make the core
- * impure and would persist a growing array to localStorage for no reason.
+ * impure and would persist a growing array through redux-persist for no reason.
+ *
+ * It is written to storage after every action so a reload does not lose the
+ * run. Nothing is protected by keeping it in memory — the server replays the
+ * log, so a player who edits it only changes what the rules will award them.
+ * Losing it, on the other hand, costs an honest player their session and a day's
+ * allowance, which the server has already counted.
  *
  * An action is stamped with the tick it happened on, which is the game clock
  * *before* the reducer runs — the same instant the verifier applies it when
  * replaying.
  */
+export const STORAGE_KEY = 'thefed:log';
+
 let recorder = null;
 
 export const currentRecorder = () => recorder;
 
 export const currentLog = () => (recorder ? recorder.toLog(Date.now()) : null);
 
-export const resetRecorder = () => {
+const storage = () => {
+    try {
+        return typeof window !== 'undefined' ? window.localStorage : null;
+    } catch (error) {
+        // Private browsing and blocked storage both throw on access.
+        return null;
+    }
+};
+
+const save = () => {
+    const store = storage();
+    if (!store || !recorder) return;
+    try {
+        store.setItem(
+            STORAGE_KEY,
+            JSON.stringify({
+                sessionId: recorder.sessionId,
+                startedAt: recorder.startedAt,
+                actions: recorder.toLog(Date.now()).actions
+            })
+        );
+    } catch (error) {
+        // A full quota should not end the run; the log simply stops surviving
+        // a reload from here on.
+    }
+};
+
+const forget = () => {
     recorder = null;
+    const store = storage();
+    if (!store) return;
+    try {
+        store.removeItem(STORAGE_KEY);
+    } catch (error) {
+        // Nothing useful to do.
+    }
+};
+
+export const resetRecorder = forget;
+
+/** Reads back a log left by a previous page load, if there is one. */
+export const readStoredLog = () => {
+    const store = storage();
+    if (!store) return null;
+    try {
+        const raw = store.getItem(STORAGE_KEY);
+        if (!raw) return null;
+        const saved = JSON.parse(raw);
+        return saved && Array.isArray(saved.actions) ? saved : null;
+    } catch (error) {
+        return null;
+    }
+};
+
+export const restoreRecorder = () => {
+    const saved = readStoredLog();
+    if (!saved) return null;
+    recorder = createRecorder(saved);
+    return saved;
 };
 
 /**
@@ -41,11 +106,12 @@ const recording = (store) => (next) => (action) => {
             sessionId: store.getState().game.id,
             startedAt: Date.now()
         });
+        save();
         return result;
     }
 
     if (action.type === END_GAME) {
-        recorder = null;
+        forget();
         return next(action);
     }
 
@@ -59,6 +125,7 @@ const recording = (store) => (next) => (action) => {
     // so ticks fall away here without needing to be named.
     if (after.time === before.time && wasAccepted(before, after)) {
         recorder.record(action, before.time);
+        save();
     }
 
     return result;

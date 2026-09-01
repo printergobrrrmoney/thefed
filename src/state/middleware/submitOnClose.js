@@ -1,5 +1,6 @@
 import { isSessionOver } from '../../game-core';
-import { submitSession } from '../modules/submission';
+import { submitSession, restoreSession } from '../modules/submission';
+import { restoreRecorder } from './recording';
 
 /**
  * Submit a scored session the moment it closes.
@@ -13,6 +14,21 @@ import { submitSession } from '../modules/submission';
  * it in turn.
  */
 const submitOnClose = (store) => (next) => (action) => {
+    // A reload leaves the game state rehydrated but the log and the server
+    // session forgotten. Put both back, so a refresh mid-run costs nothing.
+    if (action.type === 'persist/REHYDRATE' && action.key === 'game') {
+        const result = next(action);
+        const saved = restoreRecorder();
+        if (saved && saved.sessionId) {
+            store.dispatch(restoreSession(saved.sessionId));
+            // If it ended while the page was away, it still needs submitting.
+            if (isSessionOver(store.getState().game)) {
+                store.dispatch(submitSession());
+            }
+        }
+        return result;
+    }
+
     const before = store.getState().game;
     const result = next(action);
     const after = store.getState().game;

@@ -1,6 +1,12 @@
 import { createStore, applyMiddleware } from 'redux';
 import { combineReducers } from 'redux';
-import recording, { currentLog, currentRecorder, resetRecorder } from './recording';
+import recording, {
+    currentLog,
+    currentRecorder,
+    resetRecorder,
+    restoreRecorder,
+    STORAGE_KEY
+} from './recording';
 import game, { setPlayer, endGame } from '../modules/game';
 import { printMoney, purchaseProduct, incrementTimer } from '../../game-core';
 import { verifyLog } from '../../game-core/verify';
@@ -18,7 +24,17 @@ const start = (store) => {
     store.dispatch({ type: 'thefed/game/START_GAME' });
 };
 
-beforeEach(() => resetRecorder());
+beforeEach(() => {
+    resetRecorder();
+    localStorage.clear();
+});
+
+/** A reload loses module state but not storage; this simulates only the first. */
+const resetRecorderMemoryOnly = () => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    resetRecorder();
+    if (saved !== null) localStorage.setItem(STORAGE_KEY, saved);
+};
 
 describe('recording', () => {
     it('does nothing before a session starts', () => {
@@ -118,5 +134,94 @@ describe('recording', () => {
         expect(replayed.score).toBe(live.totalPrinted);
         expect(replayed.state.printRate).toBe(live.printRate);
         expect(replayed.endedReason).toBe(live.endedReason);
+    });
+});
+
+describe('surviving a reload', () => {
+    it('writes the log to storage as it goes', () => {
+        const store = makeStore();
+        start(store);
+        store.dispatch(printMoney(1));
+
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        expect(saved.actions).toEqual([[0, 'p']]);
+        expect(saved.sessionId).toBeDefined();
+    });
+
+    it('restores the log a previous page load left behind', () => {
+        const store = makeStore();
+        start(store);
+        store.dispatch(printMoney(1));
+        store.dispatch(incrementTimer());
+        store.dispatch(printMoney(1));
+        const before = currentLog();
+
+        // A reload: module state is gone, storage is not.
+        resetRecorderMemoryOnly();
+        expect(currentRecorder()).toBeNull();
+
+        const saved = restoreRecorder();
+        expect(saved.sessionId).toBe(before.sessionId);
+        expect(currentLog().actions).toEqual(before.actions);
+    });
+
+    it('keeps recording into the restored log', () => {
+        const store = makeStore();
+        start(store);
+        store.dispatch(printMoney(1));
+
+        resetRecorderMemoryOnly();
+        restoreRecorder();
+
+        // The rehydrated game carries on from where it was.
+        const resumed = makeStore();
+        resumed.dispatch(setPlayer({ name: { first: 'Jay', last: 'Powell' } }));
+        resumed.dispatch(printMoney(1));
+
+        expect(currentLog().actions).toEqual([[0, 'p'], [0, 'p']]);
+    });
+
+    it('forgets the log when the game ends', () => {
+        const store = makeStore();
+        start(store);
+        store.dispatch(printMoney(1));
+        store.dispatch(endGame());
+
+        expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
+        expect(restoreRecorder()).toBeNull();
+    });
+
+    it('starting a new session replaces the stored log', () => {
+        const store = makeStore();
+        start(store);
+        store.dispatch(printMoney(1));
+        const first = JSON.parse(localStorage.getItem(STORAGE_KEY)).sessionId;
+
+        start(store);
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        expect(saved.sessionId).not.toBe(first);
+        expect(saved.actions).toEqual([]);
+    });
+
+    it('survives storage being unavailable', () => {
+        const real = window.localStorage;
+        Object.defineProperty(window, 'localStorage', {
+            configurable: true,
+            get() {
+                throw new Error('blocked');
+            }
+        });
+
+        const store = makeStore();
+        expect(() => {
+            start(store);
+            store.dispatch(printMoney(1));
+        }).not.toThrow();
+        expect(currentLog().actions).toEqual([[0, 'p']]);
+
+        Object.defineProperty(window, 'localStorage', {
+            configurable: true,
+            value: real
+        });
     });
 });

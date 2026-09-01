@@ -13,8 +13,11 @@ import { CORE_VERSION } from './version.js';
  * about a session, not part of its state, and keeping it out means the core
  * stays a pure function of its inputs.
  */
-export const createRecorder = ({ sessionId, startedAt }) => {
-    const actions = [];
+export const createRecorder = ({ sessionId, startedAt, actions: existing }) => {
+    // Resuming carries the actions recorded before a reload. There is nothing
+    // to protect here: the server replays the log, so a player who edits it
+    // only changes what the rules will award them, which is nothing.
+    const actions = Array.isArray(existing) ? existing.slice() : [];
 
     return {
         /** Called with the action and the tick it happened on. */
@@ -28,6 +31,14 @@ export const createRecorder = ({ sessionId, startedAt }) => {
 
         get length() {
             return actions.length;
+        },
+
+        get sessionId() {
+            return sessionId;
+        },
+
+        get startedAt() {
+            return startedAt;
         },
 
         toLog(submittedAt) {

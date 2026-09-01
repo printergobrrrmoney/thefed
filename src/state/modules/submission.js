@@ -14,6 +14,7 @@ const REJECTED = 'thefed/submission/REJECTED';
 const FAILED = 'thefed/submission/FAILED';
 const RESET = 'thefed/submission/RESET';
 const SESSION_OPENED = 'thefed/submission/SESSION_OPENED';
+const SESSION_RESTORED = 'thefed/submission/SESSION_RESTORED';
 
 const initialState = {
     sessionId: null,
@@ -27,6 +28,8 @@ const initialState = {
 export default (state = initialState, action = {}) => {
     switch (action.type) {
         case SESSION_OPENED:
+            return { ...initialState, sessionId: action.sessionId };
+        case SESSION_RESTORED:
             return { ...initialState, sessionId: action.sessionId };
         case SUBMITTING:
             return { ...state, submitting: true, error: null, problems: null };
@@ -97,3 +100,13 @@ export const submitSession = () => async (dispatch, getState) => {
 };
 
 export const resetSubmission = () => ({ type: RESET });
+
+/**
+ * Reattach a session that was already open before a reload, so the run can
+ * still be submitted rather than costing the player a day's allowance for
+ * nothing.
+ */
+export const restoreSession = (sessionId) => ({
+    type: SESSION_RESTORED,
+    sessionId
+});
