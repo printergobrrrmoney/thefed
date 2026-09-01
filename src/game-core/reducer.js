@@ -1,11 +1,11 @@
-import { ITEMS, PRICE_GROWTH } from './items';
+import { ITEMS, PRICE_GROWTH } from './items.js';
 import {
     CLOSE_SESSION,
     END_GAME,
     INCREMENT_TIMER,
     PRINT_MONEY,
     PURCHASE_PRODUCT
-} from './actions';
+} from './actions.js';
 import {
     SESSION_SECONDS,
     IDLE_SECONDS,
@@ -13,7 +13,7 @@ import {
     END_IDLE,
     END_RESIGNED,
     isSessionOver
-} from './session';
+} from './session.js';
 
 /**
  * The economic state of a run. `money` is spendable and falls when you buy;

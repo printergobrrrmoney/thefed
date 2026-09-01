@@ -1,10 +1,10 @@
-import { createInitialState, reducer, applyLog } from './reducer';
+import { createInitialState, reducer, applyLog } from './reducer.js';
 import {
     incrementTimer,
     printMoney,
     purchaseProduct,
     closeSession
-} from './actions';
+} from './actions.js';
 import {
     SESSION_SECONDS,
     IDLE_SECONDS,
@@ -13,7 +13,7 @@ import {
     END_RESIGNED,
     isSessionOver,
     secondsRemaining
-} from './session';
+} from './session.js';
 
 const ticks = (n) => new Array(n).fill(incrementTimer());
 const clicks = (n) => new Array(n).fill(printMoney(1));

@@ -1,6 +1,6 @@
-import { PRINT_MONEY, PURCHASE_PRODUCT } from './actions';
-import { ACTION_PRINT, ACTION_BUY } from './verify';
-import { CORE_VERSION } from './version';
+import { PRINT_MONEY, PURCHASE_PRODUCT } from './actions.js';
+import { ACTION_PRINT, ACTION_BUY } from './verify.js';
+import { CORE_VERSION } from './version.js';
 
 /**
  * Turns dispatched actions into replay-log entries.

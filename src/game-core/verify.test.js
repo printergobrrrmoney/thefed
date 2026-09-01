@@ -4,11 +4,11 @@ import {
     ACTION_PRINT,
     ACTION_BUY,
     MAX_ACTIONS_PER_TICK
-} from './verify';
-import { createRecorder } from './recorder';
-import { CORE_VERSION } from './version';
-import { SESSION_SECONDS, END_DURATION, END_IDLE } from './session';
-import { printMoney, purchaseProduct } from './actions';
+} from './verify.js';
+import { createRecorder } from './recorder.js';
+import { CORE_VERSION } from './version.js';
+import { SESSION_SECONDS, END_DURATION, END_IDLE } from './session.js';
+import { printMoney, purchaseProduct } from './actions.js';
 
 const log = (actions, extra = {}) => ({
     coreVersion: CORE_VERSION,

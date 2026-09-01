@@ -1,6 +1,6 @@
-import { createInitialState, reducer, applyLog } from './reducer';
-import { incrementTimer, printMoney, purchaseProduct } from './actions';
-import { ITEMS } from './items';
+import { createInitialState, reducer, applyLog } from './reducer.js';
+import { incrementTimer, printMoney, purchaseProduct } from './actions.js';
+import { ITEMS } from './items.js';
 
 const RUBBER_STAMP = ITEMS[0];
 

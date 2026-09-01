@@ -1,7 +1,7 @@
-import { createInitialState, reducer } from './reducer';
-import { incrementTimer, printMoney, purchaseProduct } from './actions';
-import { SESSION_SECONDS, isSessionOver } from './session';
-import { CORE_VERSION } from './version';
+import { createInitialState, reducer } from './reducer.js';
+import { incrementTimer, printMoney, purchaseProduct } from './actions.js';
+import { SESSION_SECONDS, isSessionOver } from './session.js';
+import { CORE_VERSION } from './version.js';
 
 /**
  * Replay log format.

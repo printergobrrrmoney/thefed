@@ -10,9 +10,9 @@
  * a rate, the growth factor — means previously recorded logs no longer replay
  * to the same score, so bump it whenever the economy changes.
  */
-export { CORE_VERSION } from './version';
+export { CORE_VERSION } from './version.js';
 
-export { ITEMS, PRICE_GROWTH } from './items';
+export { ITEMS, PRICE_GROWTH } from './items.js';
 export {
     SET_PLAYER,
     START_GAME,
@@ -27,8 +27,8 @@ export {
     printMoney,
     purchaseProduct,
     closeSession
-} from './actions';
-export { createInitialState, reducer, applyLog } from './reducer';
+} from './actions.js';
+export { createInitialState, reducer, applyLog } from './reducer.js';
 export {
     SESSION_SECONDS,
     IDLE_SECONDS,
@@ -39,7 +39,7 @@ export {
     isSessionOver,
     secondsRemaining,
     idleSecondsRemaining
-} from './session';
+} from './session.js';
 export {
     verifyLog,
     REJECTIONS,
@@ -48,5 +48,5 @@ export {
     MAX_ACTIONS,
     MAX_ACTIONS_PER_TICK,
     CLOCK_DRIFT_SECONDS
-} from './verify';
-export { createRecorder } from './recorder';
+} from './verify.js';
+export { createRecorder } from './recorder.js';
