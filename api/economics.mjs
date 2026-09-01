@@ -25,6 +25,16 @@ import {
 export const SCHEDULE_START = process.env.SCHEDULE_START || null;
 
 export default async function handler(req, res) {
+    // Public and cross-origin on purpose: the landing page reads these figures
+    // rather than keeping its own copy, so the two can never disagree about
+    // what a player can earn.
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
+
+    if (req.method === 'OPTIONS') {
+        res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+        return res.status(204).send('');
+    }
     if (req.method !== 'GET') return methodNotAllowed(res, ['GET']);
 
     const day = SCHEDULE_START ? dayOfSchedule(SCHEDULE_START) : null;
