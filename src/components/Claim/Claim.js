@@ -9,7 +9,12 @@ import {
     faShieldAlt,
     faExternalLinkAlt,
 } from '@fortawesome/free-solid-svg-icons';
-import { availableWallets, detectWallets, shortAddress } from '../../wallet';
+import {
+    availableWallets,
+    detectWallets,
+    shortAddress,
+    isMobile,
+} from '../../wallet';
 import { connectAndSignIn } from '../../state/modules/wallet';
 import Rewards from '../Rewards';
 import commatize from '../../commatizeNumber';
@@ -131,6 +136,9 @@ export const Claim = ({
     }, []);
 
     const connectingNow = connecting || signingIn;
+    // A phone has no injected provider, so offer to reopen this page inside
+    // the wallet rather than telling someone to install what they already have.
+    const mobile = isMobile();
 
     return (
         <div className="claim">
@@ -253,30 +261,46 @@ export const Claim = ({
 
                         {wallets && (
                             <ButtonGroup size="sm">
-                                {wallets.map((wallet) =>
-                                    wallet.available ? (
-                                        <Button
-                                            key={wallet.id}
-                                            variant="outline-primary"
-                                            disabled={connectingNow}
-                                            onClick={() =>
-                                                handleConnect(wallet.id)
-                                            }
-                                        >
-                                            {wallet.name}
-                                        </Button>
-                                    ) : (
-                                        <Button
-                                            key={wallet.id}
-                                            variant="outline-secondary"
-                                            href={wallet.url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                        >
-                                            Install {wallet.name}
-                                        </Button>
-                                    )
-                                )}
+                                {wallets
+                                    .map((wallet) => {
+                                        if (wallet.available) {
+                                            return (
+                                                <Button
+                                                    key={wallet.id}
+                                                    variant="outline-primary"
+                                                    disabled={connectingNow}
+                                                    onClick={() =>
+                                                        handleConnect(wallet.id)
+                                                    }
+                                                >
+                                                    {wallet.name}
+                                                </Button>
+                                            );
+                                        }
+                                        if (mobile) {
+                                            return wallet.browseLink ? (
+                                                <Button
+                                                    key={wallet.id}
+                                                    variant="outline-primary"
+                                                    href={wallet.browseLink}
+                                                >
+                                                    Open in {wallet.name}
+                                                </Button>
+                                            ) : null;
+                                        }
+                                        return (
+                                            <Button
+                                                key={wallet.id}
+                                                variant="outline-secondary"
+                                                href={wallet.url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
+                                                Install {wallet.name}
+                                            </Button>
+                                        );
+                                    })
+                                    .filter(Boolean)}
                             </ButtonGroup>
                         )}
                     </div>

@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
-import { string, func, node, bool } from 'prop-types';
+import { func, node, bool } from 'prop-types';
 import { connect } from 'react-redux';
-import { Row, Col, Form, InputGroup, Button } from 'react-bootstrap';
+import { Row, Col, Form, Button } from 'react-bootstrap';
 import { setPlayer } from '../../../state/modules/game';
 import { chooseDisplayName } from '../../../state/modules/wallet';
-import { nameProblem, MESSAGES, MAX_LENGTH } from '../../../leaderboard/displayName';
+import {
+    nameProblem,
+    MESSAGES,
+    MAX_LENGTH,
+} from '../../../leaderboard/displayName';
 import WalletSection from './WalletSection';
 
-const FormGroup = props => <Form.Group className="text-left" {...props} />;
+const FormGroup = (props) => <Form.Group className="text-left" {...props} />;
 
 const FormRow = ({ leftCol: LeftCol, rightCol: RightCol }) => (
     <Row>
@@ -18,10 +22,15 @@ const FormRow = ({ leftCol: LeftCol, rightCol: RightCol }) => (
 
 FormRow.propTypes = {
     leftCol: node.isRequired,
-    rightCol: node.isRequired
+    rightCol: node.isRequired,
 };
 
-const Application = ({ signedIn, handleSetPlayer, handleChooseName, handleNext }) => {
+const Application = ({
+    signedIn,
+    handleSetPlayer,
+    handleChooseName,
+    handleNext,
+}) => {
     const [name, setName] = useState({ first: '', last: '' });
     const [nameError, setNameError] = useState(null);
     const handleChange = ({ target: { id, value } }) => {
@@ -34,7 +43,7 @@ const Application = ({ signedIn, handleSetPlayer, handleChooseName, handleNext }
     // it. Someone playing unscored can call themselves anything.
     const boardName = `${name.first} ${name.last}`.trim();
 
-    const handleSubmit = async event => {
+    const handleSubmit = async (event) => {
         if (event) event.preventDefault();
 
         if (signedIn) {
@@ -52,41 +61,6 @@ const Application = ({ signedIn, handleSetPlayer, handleChooseName, handleNext }
 
         handleSetPlayer({ name });
         handleNext();
-    };
-
-    // These are a joke, not data: nothing reads them and nothing depends on
-    // them. They are marked optional so nobody fills them in believing
-    // otherwise, and left in because declaring your crimes to the Fed is the
-    // best part of the form.
-    const CrimeFormGroup = ({ label, unit, verb, ...props }) => (
-        <FormGroup {...props}>
-            <Form.Label>
-                {label}{' '}
-                <span className="text-muted" style={{ fontWeight: 400 }}>
-                    (optional)
-                </span>
-            </Form.Label>
-            <InputGroup>
-                <InputGroup.Prepend>
-                    <InputGroup.Text>$</InputGroup.Text>
-                </InputGroup.Prepend>
-                <Form.Control type="number" placeholder="100,000" />
-            </InputGroup>
-            <Form.Text className="text-muted">
-                Please enter the total amount of {unit} you have {verb} in US
-                dollars.
-            </Form.Text>
-        </FormGroup>
-    );
-
-    CrimeFormGroup.propTypes = {
-        label: string.isRequired,
-        unit: string,
-        verb: string.isRequired
-    };
-
-    CrimeFormGroup.defaultProps = {
-        unit: 'money'
     };
 
     return (
@@ -108,7 +82,6 @@ const Application = ({ signedIn, handleSetPlayer, handleChooseName, handleNext }
                                 placeholder="First"
                                 aria-label="Player first name"
                                 maxLength={MAX_LENGTH}
-                                autoFocus
                                 required
                             />
                         }
@@ -135,40 +108,6 @@ const Application = ({ signedIn, handleSetPlayer, handleChooseName, handleNext }
                         </Form.Text>
                     )}
                 </FormGroup>
-                <FormRow
-                    leftCol={
-                        <CrimeFormGroup
-                            controlId="insiderTrading"
-                            label="Insider Trading"
-                            verb="insider traded"
-                        />
-                    }
-                    rightCol={
-                        <CrimeFormGroup
-                            controlId="embezzlement"
-                            label="Embezzlement"
-                            verb="embezzeled"
-                        />
-                    }
-                />
-                <FormRow
-                    leftCol={
-                        <CrimeFormGroup
-                            controlId="bribery"
-                            label="Bribery"
-                            unit="bribes"
-                            verb="given or recieved"
-                        />
-                    }
-                    rightCol={
-                        <CrimeFormGroup
-                            controlId="taxEvasion"
-                            label="Tax Evasion"
-                            unit="taxes"
-                            verb="evaded"
-                        />
-                    }
-                />
                 <Button
                     size="lg"
                     type="submit"
@@ -186,19 +125,16 @@ Application.propTypes = {
     signedIn: bool.isRequired,
     handleChooseName: func.isRequired,
     handleSetPlayer: func.isRequired,
-    handleNext: func.isRequired
+    handleNext: func.isRequired,
 };
 
 const mapStateToProps = ({ wallet }) => ({
-    signedIn: wallet.signedIn
+    signedIn: wallet.signedIn,
 });
 
 const mapDispatchToProps = {
     handleSetPlayer: setPlayer,
-    handleChooseName: chooseDisplayName
+    handleChooseName: chooseDisplayName,
 };
 
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps
-)(Application);
+export default connect(mapStateToProps, mapDispatchToProps)(Application);

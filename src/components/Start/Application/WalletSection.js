@@ -8,7 +8,8 @@ import { faWallet, faCheck } from '@fortawesome/free-solid-svg-icons';
 import {
     availableWallets,
     detectWallets,
-    shortAddress
+    shortAddress,
+    isMobile,
 } from '../../../wallet';
 import { connectAndSignIn } from '../../../state/modules/wallet';
 import styles from './WalletSection.module.scss';
@@ -29,10 +30,13 @@ export const WalletSection = ({
     connecting,
     signingIn,
     error,
-    handleConnect
+    handleConnect,
 }) => {
     const [wallets, setWallets] = useState(null);
     const busy = connecting || signingIn;
+    // A phone never has an injected provider, so "not detected" there means
+    // "open this page in the wallet", not "you do not have one".
+    const mobile = isMobile();
 
     if (signedIn && address) {
         return (
@@ -43,6 +47,51 @@ export const WalletSection = ({
             </div>
         );
     }
+
+    const choices = wallets
+        ? wallets
+              .map((wallet) => {
+                  if (wallet.available) {
+                      return (
+                          <Button
+                              key={wallet.id}
+                              variant="outline-primary"
+                              disabled={busy}
+                              onClick={() => handleConnect(wallet.id)}
+                          >
+                              {wallet.name}
+                          </Button>
+                      );
+                  }
+
+                  if (mobile) {
+                      // Without a published deeplink there is no honest button
+                      // to draw, so that wallet is simply not offered here.
+                      return wallet.browseLink ? (
+                          <Button
+                              key={wallet.id}
+                              variant="outline-primary"
+                              href={wallet.browseLink}
+                          >
+                              Open in {wallet.name}
+                          </Button>
+                      ) : null;
+                  }
+
+                  return (
+                      <Button
+                          key={wallet.id}
+                          variant="outline-secondary"
+                          href={wallet.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                      >
+                          Install {wallet.name}
+                      </Button>
+                  );
+              })
+              .filter(Boolean)
+        : [];
 
     return (
         <div className={styles.root}>
@@ -65,31 +114,21 @@ export const WalletSection = ({
                 </Button>
             )}
 
-            {wallets && (
+            {wallets && choices.length > 0 && (
                 <ButtonGroup size="sm" className={styles.choices}>
-                    {wallets.map((w) =>
-                        w.available ? (
-                            <Button
-                                key={w.id}
-                                variant="outline-primary"
-                                disabled={busy}
-                                onClick={() => handleConnect(w.id)}
-                            >
-                                {w.name}
-                            </Button>
-                        ) : (
-                            <Button
-                                key={w.id}
-                                variant="outline-secondary"
-                                href={w.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                Install {w.name}
-                            </Button>
-                        )
-                    )}
+                    {choices}
                 </ButtonGroup>
+            )}
+
+            {wallets && choices.length === 0 && (
+                <p className={styles.note}>No wallet found on this device.</p>
+            )}
+
+            {wallets && mobile && choices.length > 0 && (
+                <p className={styles.note}>
+                    Your phone’s browser can’t see wallet apps directly. These
+                    reopen this page inside the wallet, where it can.
+                </p>
             )}
 
             <p className={styles.note}>
@@ -108,12 +147,12 @@ WalletSection.propTypes = {
     connecting: bool.isRequired,
     signingIn: bool.isRequired,
     error: string,
-    handleConnect: func.isRequired
+    handleConnect: func.isRequired,
 };
 
 WalletSection.defaultProps = {
     address: null,
-    error: null
+    error: null,
 };
 
 const mapStateToProps = ({ wallet }) => ({
@@ -121,7 +160,7 @@ const mapStateToProps = ({ wallet }) => ({
     signedIn: wallet.signedIn,
     connecting: wallet.connecting,
     signingIn: wallet.signingIn,
-    error: wallet.error
+    error: wallet.error,
 });
 
 export default connect(mapStateToProps, { handleConnect: connectAndSignIn })(
