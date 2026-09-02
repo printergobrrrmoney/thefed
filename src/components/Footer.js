@@ -184,7 +184,7 @@ const tweet = {
     url: 'https://game.printergobrrr.money',
     text:
         'Play as Jerome Powell and see if you can print faster at the @federalreserve:',
-    handle: 'moneyprintergo',
+    handle: 'Printer_Go_BRRR',
     hashtags: ['BRRR'],
 };
 
