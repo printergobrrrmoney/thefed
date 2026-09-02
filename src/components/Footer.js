@@ -5,7 +5,6 @@ import { Container as BSContainer } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faShareAlt,
-    faChartLine,
     faMoneyBillWave,
     faWallet,
 } from '@fortawesome/free-solid-svg-icons';
@@ -177,8 +176,6 @@ Footer.propTypes = {
 };
 
 const homepage = 'https://printergobrrr.money';
-const chartUrl =
-    'https://dexscreener.com/solana/6wdxyu21jeqzsqwg85dxyhczdvysxxupnsut1etqmoon';
 
 const tweet = {
     url: 'https://game.printergobrrr.money',
@@ -196,12 +193,6 @@ const items = [
         href: 'https://claim.printergobrrr.money',
         icon: faWallet,
         color: '#1b7d3a',
-    },
-    {
-        children: 'Buy $BRRR',
-        href: chartUrl,
-        icon: faChartLine,
-        color: '#700fdd',
     },
     {
         children: 'Share',
