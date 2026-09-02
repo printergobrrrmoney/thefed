@@ -7,6 +7,7 @@ import {
     faShareAlt,
     faChartLine,
     faMoneyBillWave,
+    faWallet,
 } from '@fortawesome/free-solid-svg-icons';
 import { faXTwitter } from '@fortawesome/free-brands-svg-icons';
 
@@ -188,6 +189,14 @@ const tweet = {
 };
 
 const items = [
+    {
+        // The real claim page, linked from inside the game on purpose: people
+        // should learn the address here, from us, before meeting a fake of it.
+        children: 'Claim',
+        href: 'https://claim.printergobrrr.money',
+        icon: faWallet,
+        color: '#1b7d3a',
+    },
     {
         children: 'Buy $BRRR',
         href: chartUrl,
