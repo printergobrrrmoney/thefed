@@ -246,3 +246,172 @@ noscript {
     color: #6c757d;
     line-height: 1.45;
 }
+
+
+// Claim — the page people land on from outside, often for the first time and
+// often suspicious, which is what the layout is built around: the warning and
+// the safety notes come before anything asks them to interact.
+.claim {
+    max-width: 40rem;
+    margin: 0 auto;
+    padding: 2rem 1rem 4rem;
+    text-align: left;
+}
+
+.claim-head h1 {
+    font-family: 'VT323', monospace;
+    font-size: 2.6rem;
+    margin-bottom: 0.5rem;
+}
+
+.claim-lead {
+    font-size: 0.95rem;
+    line-height: 1.55;
+    color: #495057;
+}
+
+.claim-status {
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.claim-safety,
+.claim-check {
+    margin-top: 2rem;
+}
+
+.claim-safety h2,
+.claim-check h2 {
+    font-family: 'VT323', monospace;
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.claim-safety ul {
+    padding-left: 1.1rem;
+    margin: 0;
+}
+
+.claim-safety li {
+    font-size: 0.88rem;
+    line-height: 1.55;
+    margin-bottom: 0.55rem;
+    color: #495057;
+}
+
+.claim-row {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.claim-connect,
+.claim-connected {
+    margin-top: 0.75rem;
+    font-size: 0.88rem;
+}
+
+.claim-error {
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+    color: $danger;
+}
+
+.claim-empty {
+    margin-top: 1.25rem;
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.claim-standing {
+    margin-top: 1.5rem;
+    padding: 1rem 1.1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    background: #f8f9fa;
+}
+
+.claim-who {
+    margin-bottom: 0.9rem;
+}
+
+.claim-who strong { display: block; }
+
+.claim-who span {
+    font-size: 0.75rem;
+    color: #adb5bd;
+    font-variant-numeric: tabular-nums;
+}
+
+.claim-facts {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.6rem;
+    margin: 0 0 1rem;
+}
+
+.claim-facts dt {
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #6c757d;
+    font-weight: 400;
+    margin-bottom: 0.15rem;
+}
+
+.claim-facts dd {
+    font-family: 'VT323', monospace;
+    font-size: 1.3rem;
+    line-height: 1.1;
+    color: #1b7d3a;
+    margin: 0;
+}
+
+.claim-days-wrap { overflow-x: auto; }
+
+.claim-days {
+    width: 100%;
+    font-size: 0.8rem;
+    margin-bottom: 0.6rem;
+}
+
+.claim-days th,
+.claim-days td {
+    padding: 0.3rem 0.45rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.claim-days th {
+    font-size: 0.66rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #6c757d;
+    font-weight: 400;
+}
+
+.claim-days .num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.claim-fine {
+    font-size: 0.78rem;
+    color: #6c757d;
+    line-height: 1.45;
+    margin: 0;
+}
+
+.claim-rewards {
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e9ecef;
+}
+
+.claim-foot {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 2.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid #e9ecef;
+    font-size: 0.85rem;
+}

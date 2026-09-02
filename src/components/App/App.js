@@ -11,17 +11,22 @@ const title = process.env.REACT_APP_TITLE;
 
 const Start = Loadable({
     loader: () => import('../Start'),
-    loading
+    loading,
 });
 
 const Game = Loadable({
     loader: () => import('../Game'),
-    loading
+    loading,
+});
+
+const Claim = Loadable({
+    loader: () => import('../Claim'),
+    loading,
 });
 
 const NotFound = Loadable({
     loader: () => import('../NotFound'),
-    loading
+    loading,
 });
 
 const App = () => (
@@ -30,6 +35,7 @@ const App = () => (
         <Switch>
             <Route path="/" exact component={Game} />
             <Route path="/apply" exact component={Start} />
+            <Route path="/claim" exact component={Claim} />
             <Route component={NotFound} />
         </Switch>
         <Modal />
