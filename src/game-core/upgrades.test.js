@@ -1,4 +1,5 @@
 import { createInitialState, reducer } from './reducer';
+import { ITEMS } from './items';
 import { printMoney, purchaseProduct, purchaseUpgrade } from './actions';
 import {
     UPGRADES,
@@ -15,6 +16,9 @@ import { verifyLog, ACTION_PRINT, ACTION_BUY, ACTION_UPGRADE } from './verify';
 import { CORE_VERSION } from './version';
 
 const play = (state, actions) => actions.reduce(reducer, state);
+
+const STAMP = ITEMS[0].rate;
+const ACCOUNTANT = ITEMS[1].rate;
 
 /** Enough money to shop with, without buying anything to get it. */
 const withMoney = (amount, state = createInitialState()) => ({
@@ -49,16 +53,16 @@ describe('the rate, now derived rather than accumulated', () => {
     it('is unchanged when nothing is upgraded', () => {
         const state = buy(withMoney(1_000_000), 'Rubber Stamp', 5);
         // Five stamps at 2/sec.
-        expect(state.printRate).toBe(10);
-        expect(rateFor(state.store, [])).toBe(10);
+        expect(state.printRate).toBe(5 * STAMP);
+        expect(rateFor(state.store, [])).toBe(5 * STAMP);
     });
 
     it('multiplies what is already owned', () => {
         let state = buy(withMoney(10_000_000), 'Rubber Stamp', UNLOCK_AT);
-        expect(state.printRate).toBe(UNLOCK_AT * 2);
+        expect(state.printRate).toBe(UNLOCK_AT * STAMP);
 
         state = reducer(state, purchaseUpgrade('x-rubber-stamp'));
-        expect(state.printRate).toBe(UNLOCK_AT * 2 * 2);
+        expect(state.printRate).toBe(UNLOCK_AT * STAMP * 2);
     });
 
     it('also multiplies what is bought afterwards', () => {
@@ -69,16 +73,16 @@ describe('the rate, now derived rather than accumulated', () => {
         const before = state.printRate;
 
         state = reducer(state, purchaseProduct('Rubber Stamp'));
-        expect(state.printRate).toBe(before + 2 * 2);
+        expect(state.printRate).toBe(before + STAMP * 2);
     });
 
     it('leaves other items alone', () => {
         let state = buy(withMoney(100_000_000), 'Rubber Stamp', UNLOCK_AT);
         state = buy(state, 'Accountant', 2);
-        const accountants = 2 * 7;
+        const accountants = 2 * ACCOUNTANT;
 
         state = reducer(state, purchaseUpgrade('x-rubber-stamp'));
-        expect(state.printRate).toBe(UNLOCK_AT * 2 * 2 + accountants);
+        expect(state.printRate).toBe(UNLOCK_AT * STAMP * 2 + accountants);
     });
 });
 
@@ -158,7 +162,9 @@ describe('replay', () => {
         coreVersion: CORE_VERSION,
         sessionId: 's',
         startedAt: 0,
-        submittedAt: 600_000,
+        // Must cover the ticks the log claims, or the verifier rightly rejects
+        // it for claiming more game time than wall clock allows.
+        submittedAt: 1_000_000,
         actions,
     });
 
@@ -203,22 +209,22 @@ describe('replay', () => {
     it('replays a real purchase and upgrade together', () => {
         const actions = [];
         // Click up the money for ten stamps and the upgrade.
-        for (let i = 0; i < 2000; i += 1) actions.push([0, ACTION_PRINT]);
+        for (let i = 0; i < 6000; i += 1) actions.push([0, ACTION_PRINT]);
         // Rate limiting allows a bounded number per tick, so spread them.
         const spread = actions.map((entry, i) => [
             Math.floor(i / 10),
             entry[1],
         ]);
         for (let i = 0; i < UNLOCK_AT; i += 1) {
-            spread.push([300 + i, ACTION_BUY, 'Rubber Stamp']);
+            spread.push([700 + i, ACTION_BUY, 'Rubber Stamp']);
         }
-        spread.push([400, ACTION_UPGRADE, 'x-rubber-stamp']);
+        spread.push([800, ACTION_UPGRADE, 'x-rubber-stamp']);
 
         const result = verifyLog(log(spread));
         expect(result.problems).toEqual([]);
         expect(result.state.store[0].count).toBe(UNLOCK_AT);
         expect(result.state.upgrades).toEqual(['x-rubber-stamp']);
-        expect(result.state.printRate).toBe(UNLOCK_AT * 2 * 2);
+        expect(result.state.printRate).toBe(UNLOCK_AT * STAMP * 2);
     });
 });
 
@@ -240,7 +246,7 @@ describe('what an upgrade is worth, stated plainly', () => {
         const state = buy(withMoney(10_000_000), 'Rubber Stamp', UNLOCK_AT);
         // Fifteen stamps at 2/sec, doubled, is another 30/sec.
         expect(gainFor(findUpgrade('x-rubber-stamp'), state.store, [])).toBe(
-            UNLOCK_AT * 2
+            UNLOCK_AT * STAMP
         );
     });
 
@@ -250,7 +256,7 @@ describe('what an upgrade is worth, stated plainly', () => {
         // A second doubling would be worth twice as much as the first was.
         expect(
             gainFor(findUpgrade('x-rubber-stamp'), state.store, state.upgrades)
-        ).toBe(UNLOCK_AT * 2 * 2);
+        ).toBe(UNLOCK_AT * STAMP * 2);
     });
 
     it('is zero for an item nobody owns', () => {

@@ -9,9 +9,14 @@ import recording, {
     STORAGE_KEY
 } from './recording';
 import game, { setPlayer, endGame } from '../modules/game';
-import { printMoney, purchaseProduct, incrementTimer } from '../../game-core';
+import {
+    printMoney,
+    purchaseProduct,
+    incrementTimer,
+    isSessionOver,
+    ITEMS
+} from '../../game-core';
 import { verifyLog } from '../../game-core/verify';
-import { isSessionOver } from '../../game-core';
 
 // The real game module dispatches a router push on start; a plain reducer with
 // the same actions is enough to exercise the middleware.
@@ -66,7 +71,8 @@ describe('recording', () => {
         const store = makeStore();
         start(store);
 
-        for (let i = 0; i < 9; i += 1) store.dispatch(printMoney(1));
+        for (let i = 0; i < ITEMS[0].price; i += 1)
+            store.dispatch(printMoney(1));
         store.dispatch(purchaseProduct('Rubber Stamp'));
 
         const actions = currentLog().actions;
@@ -78,7 +84,7 @@ describe('recording', () => {
         start(store);
 
         store.dispatch(printMoney(1));
-        store.dispatch(purchaseProduct('Rubber Stamp')); // costs 9
+        store.dispatch(purchaseProduct('Rubber Stamp')); // costs more than a single click
 
         expect(currentLog().actions).toEqual([[0, 'p']]);
     });
@@ -115,9 +121,12 @@ describe('recording', () => {
         const store = makeStore();
         start(store);
 
-        for (let i = 0; i < 9; i += 1) store.dispatch(printMoney(1));
+        for (let i = 0; i < ITEMS[0].price; i += 1) {
+            store.dispatch(printMoney(1));
+            if ((i + 1) % 10 === 0) store.dispatch(incrementTimer());
+        }
         store.dispatch(purchaseProduct('Rubber Stamp'));
-        for (let i = 0; i < 30; i += 1) store.dispatch(incrementTimer());
+        for (let i = 0; i < 20; i += 1) store.dispatch(incrementTimer());
         store.dispatch(printMoney(1));
 
         // The verifier plays a session out to its natural end, so idle earnings

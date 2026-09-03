@@ -3,12 +3,13 @@ import {
     REJECTIONS,
     ACTION_PRINT,
     ACTION_BUY,
-    MAX_ACTIONS_PER_TICK
+    MAX_ACTIONS_PER_TICK,
 } from './verify.js';
 import { createRecorder } from './recorder.js';
 import { CORE_VERSION } from './version.js';
 import { SESSION_SECONDS, END_DURATION, END_IDLE } from './session.js';
 import { printMoney, purchaseProduct } from './actions.js';
+import { ITEMS } from './items.js';
 
 const log = (actions, extra = {}) => ({
     coreVersion: CORE_VERSION,
@@ -16,7 +17,7 @@ const log = (actions, extra = {}) => ({
     startedAt: 1_000_000,
     submittedAt: 1_000_000 + SESSION_SECONDS * 1000,
     actions,
-    ...extra
+    ...extra,
 });
 
 /** One print per second for `n` seconds. */
@@ -32,12 +33,16 @@ describe('an honest log', () => {
     });
 
     it('credits a purchase and the rate it buys', () => {
-        const actions = [...steadyClicks(9), [9, ACTION_BUY, 'Rubber Stamp']];
+        const { price } = ITEMS[0];
+        const actions = [
+            ...steadyClicks(price),
+            [price, ACTION_BUY, 'Rubber Stamp'],
+        ];
         const result = verifyLog(log(actions));
 
         expect(result.ok).toBe(true);
         expect(result.state.store[0].count).toBe(1);
-        // 9 printed, then the stamp earns 2/sec until the idle timeout closes it
+        // `price` printed, then the stamp earns its rate until the idle timeout
         expect(result.score).toBeGreaterThan(9);
     });
 
@@ -47,10 +52,10 @@ describe('an honest log', () => {
     });
 
     it('closes on the duration cap for a full session', () => {
-        const actions = Array.from(
-            { length: SESSION_SECONDS },
-            (_, i) => [i, ACTION_PRINT]
-        );
+        const actions = Array.from({ length: SESSION_SECONDS }, (_, i) => [
+            i,
+            ACTION_PRINT,
+        ]);
         const result = verifyLog(log(actions));
         expect(result.endedReason).toBe(END_DURATION);
         expect(result.ticks).toBe(SESSION_SECONDS);
@@ -72,9 +77,14 @@ describe('forged logs', () => {
     });
 
     it('cannot buy an item that was never revealed', () => {
-        const rich = [...steadyClicks(200), [200, ACTION_BUY, 'Insurance Fraud']];
+        const rich = [
+            ...steadyClicks(200),
+            [200, ACTION_BUY, 'Insurance Fraud'],
+        ];
         const result = verifyLog(log(rich));
-        expect(result.state.store.find((i) => i.name === 'Insurance Fraud').count).toBe(0);
+        expect(
+            result.state.store.find((i) => i.name === 'Insurance Fraud').count
+        ).toBe(0);
     });
 
     it('cannot invent an item', () => {
@@ -90,17 +100,20 @@ describe('forged logs', () => {
 
     it('rejects ticks that go backwards', () => {
         const result = verifyLog(
-            log([[10, ACTION_PRINT], [4, ACTION_PRINT]])
+            log([
+                [10, ACTION_PRINT],
+                [4, ACTION_PRINT],
+            ])
         );
         expect(result.ok).toBe(false);
         expect(result.problems).toContain(REJECTIONS.TICK_ORDER);
     });
 
     it('rejects an inhuman click rate', () => {
-        const spam = Array.from(
-            { length: MAX_ACTIONS_PER_TICK + 5 },
-            () => [3, ACTION_PRINT]
-        );
+        const spam = Array.from({ length: MAX_ACTIONS_PER_TICK + 5 }, () => [
+            3,
+            ACTION_PRINT,
+        ]);
         const result = verifyLog(log(spam));
         expect(result.ok).toBe(false);
         expect(result.problems).toContain(REJECTIONS.RATE);
@@ -110,7 +123,7 @@ describe('forged logs', () => {
         const result = verifyLog(
             log(steadyClicks(600), {
                 startedAt: 1_000_000,
-                submittedAt: 1_000_000 + 5_000 // 5 real seconds for 600 ticks
+                submittedAt: 1_000_000 + 5_000, // 5 real seconds for 600 ticks
             })
         );
         expect(result.ok).toBe(false);
@@ -145,8 +158,8 @@ describe('forged logs', () => {
             ...honest,
             ...Array.from({ length: 500 }, (_, i) => [
                 Math.min(SESSION_SECONDS, 400 + i),
-                ACTION_PRINT
-            ])
+                ACTION_PRINT,
+            ]),
         ];
         // The idle timeout closes the honest run long before tick 400.
         expect(verifyLog(log(padded)).score).toBe(verifyLog(log(honest)).score);
@@ -157,21 +170,21 @@ describe('the recorder', () => {
     it('produces a log the verifier agrees with', () => {
         const recorder = createRecorder({
             sessionId: 's1',
-            startedAt: 1_000_000
+            startedAt: 1_000_000,
         });
 
-        // Mirror a real run: nine clicks, then buy the stamp.
-        for (let tick = 0; tick < 9; tick += 1) {
+        // Mirror a real run: click up the price, then buy the stamp.
+        for (let tick = 0; tick < ITEMS[0].price; tick += 1) {
             recorder.record(printMoney(1), tick);
         }
-        recorder.record(purchaseProduct('Rubber Stamp'), 9);
+        recorder.record(purchaseProduct('Rubber Stamp'), ITEMS[0].price);
 
         const produced = recorder.toLog(1_000_000 + 60_000);
         const result = verifyLog(produced);
 
         expect(result.ok).toBe(true);
         expect(result.state.store[0].count).toBe(1);
-        expect(recorder.length).toBe(10);
+        expect(recorder.length).toBe(ITEMS[0].price + 1);
     });
 
     it('records no amount for a print', () => {

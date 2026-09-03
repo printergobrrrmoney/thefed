@@ -8,8 +8,20 @@
  *
  * Times are in game ticks, and a tick is one second.
  */
-export const SESSION_SECONDS = 60 * 60;
-export const IDLE_SECONDS = 5 * 60;
+/**
+ * A term is fifteen minutes, not an hour.
+ *
+ * The ladder is now paced to be cleared at about thirteen minutes, so an hour
+ * left fifty-odd minutes with nothing in them -- and three of those a day is
+ * more time than anyone was going to give this. Fifteen is a sitting.
+ */
+export const SESSION_SECONDS = 15 * 60;
+
+/**
+ * Three minutes of nothing ends a term. Five was a third of the new session,
+ * long enough to leave a tab running and still be counted.
+ */
+export const IDLE_SECONDS = 3 * 60;
 
 export const END_DURATION = 'duration';
 export const END_IDLE = 'idle';
@@ -29,20 +41,20 @@ export const ABANDON_AFTER_SECONDS = SESSION_SECONDS + 30 * 60;
 export const END_REASONS = {
     [END_DURATION]: {
         title: 'Term complete',
-        detail: 'Your hour at the helm is up. The Board thanks you.'
+        detail: 'Your hour at the helm is up. The Board thanks you.',
     },
     [END_IDLE]: {
         title: 'Removed for absence',
-        detail: 'The presses sat idle too long and the Board lost patience.'
+        detail: 'The presses sat idle too long and the Board lost patience.',
     },
     [END_RESIGNED]: {
         title: 'Resigned',
-        detail: 'You stepped down as Chair.'
+        detail: 'You stepped down as Chair.',
     },
     [END_ABANDONED]: {
         title: 'Term lapsed',
-        detail: 'You left the building and the Board moved on without you.'
-    }
+        detail: 'You left the building and the Board moved on without you.',
+    },
 };
 
 export const isSessionOver = (state) => state.endedAt !== null;

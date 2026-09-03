@@ -4,74 +4,101 @@
  * Deliberately free of images or any other presentation concern: this table is
  * replayed server-side to verify scores, so it must be loadable outside a
  * bundler. The app decorates these with artwork at render time.
+ *
+ * Two things are true of this ladder that were not true of the first one.
+ *
+ * Rates step by a consistent 3x. The original stepped by 3.5x, then 30x, then
+ * 5.6x, then 17.6x, and later by as little as 1.2x, which produced a grindy
+ * middle and then an ending where the last five items arrived within half a
+ * minute of each other.
+ *
+ * Payback falls across the ladder rather than rising: thirty seconds at the
+ * Rubber Stamp down to four at the Tech Company. The opening therefore asks for
+ * real commitment -- a lot of clicking and a lot of small purchases before
+ * anything compounds -- and the reward for getting through it is an economy
+ * that increasingly runs itself. The first table had this backwards, paying
+ * back fastest at the top, which is why the whole ladder could be cleared in
+ * about five minutes and the remaining fifty-five had nothing in them.
  */
 export const ITEMS = [
-    { name: 'Rubber Stamp', rate: 2, price: 9, count: 0, reveal: true },
-    { name: 'Accountant', rate: 7, price: 32, count: 0, reveal: true },
-    { name: 'Money Press', rate: 213, price: 920, count: 0, reveal: true },
-    { name: 'Bribe', rate: 1190, price: 5000, count: 0, reveal: true },
-    { name: 'Mint', rate: 20975, price: 86000, count: 0, reveal: true },
-    { name: 'Espionage', rate: 98750, price: 395000, count: 0, reveal: true },
-    { name: 'Black Op', rate: 733333, price: 2860000, count: 0, reveal: true },
+    { name: 'Rubber Stamp', rate: 1, price: 30, count: 0, reveal: true },
+    { name: 'Accountant', rate: 3, price: 78, count: 0, reveal: true },
+    { name: 'Money Press', rate: 9, price: 200, count: 0, reveal: true },
+    { name: 'Bribe', rate: 27, price: 530, count: 0, reveal: true },
+    { name: 'Mint', rate: 81, price: 1400, count: 0, reveal: true },
+    {
+        name: 'Espionage',
+        rate: 240,
+        price: 3500,
+        count: 0,
+        reveal: false,
+    },
+    {
+        name: 'Black Op',
+        rate: 730,
+        price: 9200,
+        count: 0,
+        reveal: false,
+    },
     {
         name: 'Propaganda Campaign',
-        rate: 20815789,
-        price: 79100000,
+        rate: 2200,
+        price: 24000,
         count: 0,
-        reveal: false
+        reveal: false,
     },
     {
         name: 'Insurance Fraud',
-        rate: 246216216,
-        price: 911000000,
+        rate: 6600,
+        price: 63000,
         count: 0,
-        reveal: false
+        reveal: false,
     },
     {
         name: 'Russian Oligarch',
-        rate: 2722222222,
-        price: 9800000000,
+        rate: 20000,
+        price: 160000,
         count: 0,
-        reveal: false
+        reveal: false,
     },
     {
         name: 'Invade North Korea',
-        rate: 4714285714,
-        price: 16500000000,
+        rate: 59000,
+        price: 420000,
         count: 0,
-        reveal: false
+        reveal: false,
     },
     {
         name: 'Invade Cuba',
-        rate: 25588235294,
-        price: 87000000000,
+        rate: 180000,
+        price: 1100000,
         count: 0,
-        reveal: false
+        reveal: false,
     },
     {
         name: 'Commercial Bank',
-        rate: 112727272727,
-        price: 372000000000,
+        rate: 530000,
+        price: 2800000,
         count: 0,
-        reveal: false
+        reveal: false,
     },
     {
         name: 'Invade Iran',
-        rate: 137187500000,
-        price: 439000000000,
+        rate: 1600000,
+        price: 7400000,
         count: 0,
-        reveal: false
+        reveal: false,
     },
     {
         name: 'Tech Company',
-        rate: 321000000000,
-        price: 963000000000,
+        rate: 4800000,
+        price: 19000000,
         count: 0,
-        reveal: false
-    }
+        reveal: false,
+    },
 ];
 
-/** Each purchase raises that item's price by this factor. */
+/** Each additional unit of the same item costs this much more than the last. */
 export const PRICE_GROWTH = 1.15;
 
 export default ITEMS;

@@ -29,7 +29,7 @@ describe('score', () => {
             ...ticks(30),
             purchaseProduct('Accountant'),
             ...ticks(30),
-            ...clicks(10)
+            ...clicks(10),
         ];
 
         let state = createInitialState();
@@ -59,15 +59,22 @@ describe('determinism', () => {
             ...clicks(40),
             purchaseProduct(RUBBER_STAMP.name),
             ...ticks(120),
-            purchaseProduct('Accountant')
+            purchaseProduct('Accountant'),
         ];
         expect(applyLog(log)).toEqual(applyLog(log));
     });
 
     it('reaches the same state whether replayed at once or stepwise', () => {
-        const log = [...clicks(50), purchaseProduct(RUBBER_STAMP.name), ...ticks(60)];
+        const log = [
+            ...clicks(50),
+            purchaseProduct(RUBBER_STAMP.name),
+            ...ticks(60),
+        ];
         const atOnce = applyLog(log);
-        const stepwise = log.reduce((acc, action) => reducer(acc, action), createInitialState());
+        const stepwise = log.reduce(
+            (acc, action) => reducer(acc, action),
+            createInitialState()
+        );
         expect(stepwise).toEqual(atOnce);
     });
 });
@@ -80,7 +87,10 @@ describe('purchase guards', () => {
     });
 
     it('ignores a purchase of an item that has not been revealed', () => {
-        const rich = { ...createInitialState(), money: Number.MAX_SAFE_INTEGER };
+        const rich = {
+            ...createInitialState(),
+            money: Number.MAX_SAFE_INTEGER,
+        };
         const after = reducer(rich, purchaseProduct('Tech Company'));
         expect(after).toBe(rich);
     });
@@ -102,14 +112,15 @@ describe('purchase guards', () => {
 
     it('reveals the next item along', () => {
         const hidden = createInitialState();
-        const propagandaIdx = hidden.store.findIndex(
-            ({ name }) => name === 'Propaganda Campaign'
-        );
-        expect(hidden.store[propagandaIdx].reveal).toBe(false);
+        // Take the boundary from the table rather than naming an item, so a
+        // rebalance that moves which items start revealed does not break this.
+        const firstHidden = hidden.store.findIndex(({ reveal }) => !reveal);
+        const unlocks = hidden.store[firstHidden - 1];
+        expect(hidden.store[firstHidden].reveal).toBe(false);
 
-        const rich = { ...hidden, money: 10000000 };
-        const after = reducer(rich, purchaseProduct('Black Op'));
-        expect(after.store[propagandaIdx].reveal).toBe(true);
+        const rich = { ...hidden, money: unlocks.price };
+        const after = reducer(rich, purchaseProduct(unlocks.name));
+        expect(after.store[firstHidden].reveal).toBe(true);
     });
 });
 
@@ -137,8 +148,8 @@ describe('purity', () => {
             money: 100,
             store: createInitialState().store.map((item) => ({
                 ...item,
-                image: `${item.name}.png`
-            }))
+                image: `${item.name}.png`,
+            })),
         };
         const after = reducer(decorated, purchaseProduct(RUBBER_STAMP.name));
         expect(after.store[0].image).toBe('Rubber Stamp.png');
