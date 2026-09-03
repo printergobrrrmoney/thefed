@@ -76,7 +76,27 @@ if (already) {
  * using one — log compression means it is worth only a little more, which is
  * the intent rather than an accident.
  */
-const rows = await sql`
+/**
+ * Scores can be supplied directly for a rehearsal:
+ *
+ *   --synthetic <address>:<score>,<address>:<score>
+ *
+ * That exercises allocation, the tree and storage without writing invented
+ * rows into `sessions`, which is real evidence about real players and should
+ * never contain anything a person did not actually do.
+ */
+const synthetic = flag('synthetic');
+
+const rows = synthetic
+    ? synthetic.split(',').map((pair) => {
+          const [address, score] = pair.split(':');
+          if (!base58Decode(address)) {
+              console.error(`not an address: ${address}`);
+              process.exit(1);
+          }
+          return { address, score: Number(score), runs: 1 };
+      })
+    : await sql`
     select address, sum(score)::bigint as score, count(*)::int as runs
     from sessions
     where rejected = false
