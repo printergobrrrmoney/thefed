@@ -21,7 +21,7 @@ const PrintButton = ({
     const handleUp = () => setSelectBankNote(false);
     const handleClick = () => {
         if (!mute && !isMobile) new Audio(print).play();
-        handlePrintMoney(printMoneyDenomination);
+        handlePrintMoney();
     };
     const label = `Print ${printMoneyDenomination} dollar${
         printMoneyDenomination > 1 ? 's' : ''

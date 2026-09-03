@@ -1,5 +1,5 @@
-import { PRINT_MONEY, PURCHASE_PRODUCT } from './actions.js';
-import { ACTION_PRINT, ACTION_BUY } from './verify.js';
+import { PRINT_MONEY, PURCHASE_PRODUCT, PURCHASE_UPGRADE } from './actions.js';
+import { ACTION_PRINT, ACTION_BUY, ACTION_UPGRADE } from './verify.js';
 import { CORE_VERSION } from './version.js';
 
 /**
@@ -26,6 +26,8 @@ export const createRecorder = ({ sessionId, startedAt, actions: existing }) => {
                 actions.push([tick, ACTION_PRINT]);
             } else if (action.type === PURCHASE_PRODUCT) {
                 actions.push([tick, ACTION_BUY, action.productName]);
+            } else if (action.type === PURCHASE_UPGRADE) {
+                actions.push([tick, ACTION_UPGRADE, action.upgradeId]);
             }
         },
 
@@ -47,9 +49,9 @@ export const createRecorder = ({ sessionId, startedAt, actions: existing }) => {
                 sessionId,
                 startedAt,
                 submittedAt,
-                actions: actions.slice()
+                actions: actions.slice(),
             };
-        }
+        },
     };
 };
 

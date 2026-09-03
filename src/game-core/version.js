@@ -7,6 +7,6 @@
  * Kept in its own module so the verifier can read it without importing the
  * package index, which would be a cycle.
  */
-export const CORE_VERSION = 2;
+export const CORE_VERSION = 3;
 
 export default CORE_VERSION;

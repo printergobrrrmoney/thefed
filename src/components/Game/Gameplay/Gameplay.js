@@ -7,6 +7,7 @@ import { incrementTimer } from '../../../state/modules/game';
 import { renderModal } from '../../../state/modules/modal';
 import Help from '../Help';
 import Store from './Store';
+import Upgrades from './Upgrades';
 import News from './News';
 import NewsToasts from './News/NewsToasts';
 import Leaderboard from '../../Leaderboard';
@@ -75,6 +76,7 @@ const Gameplay = ({
                 <Row className={h100}>
                     <Col xs={{ span: 12, order: 2 }} md={{ span: 4, order: 1 }}>
                         <Store />
+                        <Upgrades />
                     </Col>
                     <Col xs={{ span: 12, order: 1 }} md={{ span: 4, order: 2 }}>
                         <MoneyPrinting />

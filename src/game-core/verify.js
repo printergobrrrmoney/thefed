@@ -1,5 +1,10 @@
 import { createInitialState, reducer } from './reducer.js';
-import { incrementTimer, printMoney, purchaseProduct } from './actions.js';
+import {
+    incrementTimer,
+    printMoney,
+    purchaseProduct,
+    purchaseUpgrade,
+} from './actions.js';
 import { SESSION_SECONDS, isSessionOver } from './session.js';
 import { CORE_VERSION } from './version.js';
 
@@ -14,9 +19,11 @@ import { CORE_VERSION } from './version.js';
  *
  *   [tick, 'p']            a print click
  *   [tick, 'b', 'Mint']    a purchase
+ *   [tick, 'u', 'x-mint']  an upgrade
  */
 export const ACTION_PRINT = 'p';
 export const ACTION_BUY = 'b';
+export const ACTION_UPGRADE = 'u';
 
 /** A full hour of frantic clicking, with room to spare. */
 export const MAX_ACTIONS = 40000;
@@ -35,7 +42,7 @@ export const REJECTIONS = {
     TICK_ORDER: 'ticks-out-of-order',
     UNKNOWN_ACTION: 'unknown-action',
     RATE: 'inhuman-action-rate',
-    TOO_FAST: 'shorter-than-wall-clock'
+    TOO_FAST: 'shorter-than-wall-clock',
 };
 
 const isInt = (n) => typeof n === 'number' && Number.isInteger(n);
@@ -71,11 +78,18 @@ const structuralProblems = (log) => {
             problems.push(REJECTIONS.TICK_ORDER);
             break;
         }
-        if (kind !== ACTION_PRINT && kind !== ACTION_BUY) {
+        if (
+            kind !== ACTION_PRINT &&
+            kind !== ACTION_BUY &&
+            kind !== ACTION_UPGRADE
+        ) {
             problems.push(REJECTIONS.UNKNOWN_ACTION);
             break;
         }
-        if (kind === ACTION_BUY && typeof payload !== 'string') {
+        if (
+            (kind === ACTION_BUY || kind === ACTION_UPGRADE) &&
+            typeof payload !== 'string'
+        ) {
             problems.push(REJECTIONS.SHAPE);
             break;
         }
@@ -113,11 +127,13 @@ const outranWallClock = ({ startedAt, submittedAt, actions }) => {
     return lastTick > elapsed + CLOCK_DRIFT_SECONDS;
 };
 
-const applyEntry = (state, [, kind, payload]) =>
-    kind === ACTION_PRINT
-        ? // The amount comes from state, never from the log.
-          reducer(state, printMoney(state.printMoneyDenomination))
-        : reducer(state, purchaseProduct(payload));
+const applyEntry = (state, [, kind, payload]) => {
+    // The value of a press comes from state, never from the log.
+    if (kind === ACTION_PRINT) return reducer(state, printMoney());
+    if (kind === ACTION_UPGRADE)
+        return reducer(state, purchaseUpgrade(payload));
+    return reducer(state, purchaseProduct(payload));
+};
 
 /**
  * Replay a log and return the authoritative result. The score this produces is
@@ -135,7 +151,7 @@ export const verifyLog = (log = {}) => {
         return { ok: false, score: 0, ticks: 0, problems, state: null };
     }
 
-    const actions = log.actions;
+    const { actions } = log;
     let state = createInitialState();
     let i = 0;
 
@@ -154,7 +170,7 @@ export const verifyLog = (log = {}) => {
         ticks: state.endedAt === null ? state.time : state.endedAt,
         endedReason: state.endedReason,
         problems: [],
-        state
+        state,
     };
 };
 

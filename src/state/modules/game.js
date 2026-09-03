@@ -156,5 +156,6 @@ export {
     incrementTimer,
     printMoney,
     purchaseProduct,
+    purchaseUpgrade,
     closeSession
 } from '../../game-core';

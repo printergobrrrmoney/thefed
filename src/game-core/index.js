@@ -14,19 +14,31 @@ export { CORE_VERSION } from './version.js';
 
 export { ITEMS, PRICE_GROWTH } from './items.js';
 export {
+    UPGRADES,
+    UNLOCK_AT,
+    TARGET_CLICK,
+    findUpgrade,
+    isUnlocked,
+    multiplierFor,
+    rateFor,
+    denominationFor,
+} from './upgrades.js';
+export {
     SET_PLAYER,
     START_GAME,
     END_GAME,
     INCREMENT_TIMER,
     PRINT_MONEY,
     PURCHASE_PRODUCT,
+    PURCHASE_UPGRADE,
     CLOSE_SESSION,
     ECONOMIC_ACTIONS,
     isEconomicAction,
     incrementTimer,
     printMoney,
     purchaseProduct,
-    closeSession
+    purchaseUpgrade,
+    closeSession,
 } from './actions.js';
 export { createInitialState, reducer, applyLog } from './reducer.js';
 export {
@@ -41,15 +53,16 @@ export {
     isSessionOver,
     hasLapsed,
     secondsRemaining,
-    idleSecondsRemaining
+    idleSecondsRemaining,
 } from './session.js';
 export {
     verifyLog,
     REJECTIONS,
     ACTION_PRINT,
     ACTION_BUY,
+    ACTION_UPGRADE,
     MAX_ACTIONS,
     MAX_ACTIONS_PER_TICK,
-    CLOCK_DRIFT_SECONDS
+    CLOCK_DRIFT_SECONDS,
 } from './verify.js';
 export { createRecorder } from './recorder.js';
