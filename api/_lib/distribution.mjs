@@ -1,10 +1,11 @@
+/* global BigInt */
 import { base58Decode } from './crypto.mjs';
 import {
     leafFor,
     buildLevels,
     rootOf,
     proofFor as proofAt,
-    verifyProof
+    verifyProof,
 } from '../../src/economics/merkle.js';
 
 /**
@@ -31,7 +32,7 @@ export const awardsForDay = async (sql, day) => {
         index: Number(row.leaf_index),
         amount: BigInt(row.amount),
         score: Number(row.score),
-        claimedAt: row.claimed_at
+        claimedAt: row.claimed_at,
     }));
 };
 
@@ -58,7 +59,7 @@ export const distributionForDay = async (sql, day) => {
         createdTx: row.created_tx,
         fundedTx: row.funded_tx,
         burnedTx: row.burned_tx,
-        publishedAt: row.published_at
+        publishedAt: row.published_at,
     };
 };
 
@@ -82,7 +83,9 @@ export const rebuildTree = (awards, expectedRoot) => {
     const leaves = awards.map((award) => {
         const raw = base58Decode(award.address);
         if (!raw || raw.length !== 32) {
-            throw new Error(`award address is not a public key: ${award.address}`);
+            throw new Error(
+                `award address is not a public key: ${award.address}`
+            );
         }
         return leafFor(Buffer.from(raw), award.amount);
     });
@@ -132,6 +135,6 @@ export const claimForDay = async (sql, day, address) => {
         proof: proof.map((node) => node.toString('hex')),
         root: root.toString('hex'),
         claimedAt: mine.claimedAt,
-        score: mine.score
+        score: mine.score,
     };
 };

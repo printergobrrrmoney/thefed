@@ -44,7 +44,7 @@ export default async function handler(req, res) {
         // fixed, so it should never be quietly reported as "nothing to claim".
         return json(res, 500, {
             error: 'day-inconsistent',
-            detail: error.message
+            detail: error.message,
         });
     }
 
@@ -57,7 +57,7 @@ export default async function handler(req, res) {
             claimable: null,
             note: published
                 ? 'That day was published, but this wallet earned nothing on it.'
-                : 'Nothing has been published for that day.'
+                : 'Nothing has been published for that day.',
         });
     }
 
@@ -72,13 +72,13 @@ export default async function handler(req, res) {
             amountUnlocked: claim.amountUnlocked,
             amountLocked: claim.amountLocked,
             proof: claim.proof,
-            index: claim.index
+            index: claim.index,
         },
         root: claim.root,
         score: claim.score,
         claimedAt: claim.claimedAt,
         note: claim.claimedAt
             ? 'Already claimed. The proof is still valid to inspect.'
-            : 'Unclaimed. The proof below is what the distributor verifies.'
+            : 'Unclaimed. The proof below is what the distributor verifies.',
     });
 }

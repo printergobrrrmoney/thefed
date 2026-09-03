@@ -1,3 +1,4 @@
+/* global BigInt */
 /**
  * Work out what a day owes, and write it down.
  *
@@ -22,14 +23,17 @@ const env = Object.fromEntries(
         .filter((line) => line.includes('='))
         .map((line) => {
             const at = line.indexOf('=');
-            return [line.slice(0, at), line.slice(at + 1).replace(/^"|"$/g, '')];
+            return [
+                line.slice(0, at),
+                line.slice(at + 1).replace(/^"|"$/g, ''),
+            ];
         })
 );
 Object.assign(process.env, env);
 
 const { db } = await import('../api/_lib/db.mjs');
 const { base58Decode } = await import('../api/_lib/crypto.mjs');
-const { allocateDay, dayOfSchedule, DAILY_CEILING } = await import(
+const { allocateDay, dayOfSchedule } = await import(
     '../src/economics/index.js'
 );
 const { treeForAwards } = await import('../src/economics/merkle.js');
@@ -45,7 +49,9 @@ const mint = flag('mint');
 const decimals = Number(flag('decimals') || 9);
 
 if (!day) {
-    console.error('usage: allocate-day.mjs YYYY-MM-DD --mint <address> [--commit]');
+    console.error(
+        'usage: allocate-day.mjs YYYY-MM-DD --mint <address> [--commit]'
+    );
     process.exit(1);
 }
 if (!mint || !base58Decode(mint)) {
@@ -95,7 +101,7 @@ const scheduleDay = scheduleStart
 const entries = rows.map((row) => ({
     address: row.address,
     score: Number(row.score),
-    balance: 0
+    balance: 0,
 }));
 
 const allocation = allocateDay(entries, scheduleDay);
@@ -103,7 +109,7 @@ const allocation = allocateDay(entries, scheduleDay);
 const tree = treeForAwards(
     allocation.awards.map((award) => ({
         ...award,
-        claimant: Buffer.from(base58Decode(award.address))
+        claimant: Buffer.from(base58Decode(award.address)),
     })),
     decimals
 );
@@ -115,12 +121,14 @@ const burnedUnits = ceilingUnits - awardedUnits;
 
 const show = (units) =>
     (Number(units) / scale).toLocaleString('en-US', {
-        maximumFractionDigits: 4
+        maximumFractionDigits: 4,
     });
 
 console.log(`\nDay ${day} — schedule day ${scheduleDay}`);
 console.log(`  players with scored runs : ${rows.length}`);
-console.log(`  runs counted             : ${rows.reduce((n, r) => n + r.runs, 0)}`);
+console.log(
+    `  runs counted             : ${rows.reduce((n, r) => n + r.runs, 0)}`
+);
 console.log(`  ceiling                  : ${show(ceilingUnits)} BRRR`);
 console.log(`  awarded                  : ${show(awardedUnits)} BRRR`);
 console.log(`  to burn                   : ${show(burnedUnits)} BRRR`);
@@ -139,7 +147,9 @@ console.log('\ntop of the day:');
 tree.claims.slice(0, 5).forEach((claim) => {
     const entry = entries.find((e) => e.address === claim.address);
     console.log(
-        `  ${claim.address.slice(0, 8)}…  ${show(BigInt(claim.amountUnlocked)).padStart(12)} BRRR   (score ${entry.score.toLocaleString('en-US')})`
+        `  ${claim.address.slice(0, 8)}…  ${show(
+            BigInt(claim.amountUnlocked)
+        ).padStart(12)} BRRR   (score ${entry.score.toLocaleString('en-US')})`
     );
 });
 
