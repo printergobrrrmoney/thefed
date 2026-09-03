@@ -16,14 +16,16 @@ import styles from './NewsToasts.module.scss';
  * single tweet — an entire feature only desktop was getting. These surface the
  * same items over the game for the few seconds after they arrive.
  *
- * They are anchored to the bottom on purpose. The print button sits in the
- * middle of the screen under the player's thumb, and anything that appears
- * there gets tapped through by someone mid-burst.
+ * They sit just under the header, which is where a player is already looking:
+ * the money is the thing being watched. The bottom was clear of the print
+ * button but far enough from that gaze to be missed entirely, which is what
+ * happened. The print button is still nowhere near them, so nothing gets
+ * tapped through.
  *
  * Nothing here touches the reducer the server replays: news is app state and is
  * not scored, so this is presentation and cannot change what a run is worth.
  */
-export const LIFETIME_MS = 7000;
+export const LIFETIME_MS = 11000;
 export const VISIBLE = 2;
 
 export const NewsToasts = ({ tweets, updates, ciaRevealed }) => {

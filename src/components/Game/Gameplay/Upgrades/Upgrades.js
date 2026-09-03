@@ -5,9 +5,15 @@ import { connect } from 'react-redux';
 import { ListGroup, Media } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowUp, faCheck } from '@fortawesome/free-solid-svg-icons';
-import { UPGRADES, isUnlocked } from '../../../../game-core';
+import {
+    UPGRADES,
+    isUnlocked,
+    gainFor,
+    denominationFor,
+    TARGET_CLICK,
+} from '../../../../game-core';
 import { purchaseUpgrade } from '../../../../state/modules/game';
-import abbreviateMoney from '../../../../abbreviateMoney';
+import { abbreviateMoney } from '../../../../abbreviateMoney';
 import Card from '../Card';
 import styles from './Upgrades.module.scss';
 
@@ -15,12 +21,25 @@ import styles from './Upgrades.module.scss';
  * The only screen in the game asking a player to choose rather than to buy the
  * biggest thing they can afford.
  *
- * Nothing is listed until it is owned deeply enough to be worth doubling, which
- * is the whole point: an upgrade you cannot use yet is noise, and one offered
- * too early is a button that is never the right press. Once shown it stays,
- * because the choice it poses — go wider, or double what you have — is the
- * decision worth sitting with.
+ * Each row states what it would actually add, because a name and a price do not
+ * settle anything: "Automatic Stamper, $900" means nothing next to another Tech
+ * Company until you can see one is +40/sec and the other +321B/sec. The whole
+ * point of upgrades is the comparison, so the comparison has to be on screen.
  */
+const effectOf = (upgrade, store, owned) => {
+    if (upgrade.target === TARGET_CLICK) {
+        const now = denominationFor(owned);
+        const then = denominationFor([...owned, upgrade.id]);
+        return `Every press ${abbreviateMoney(now)} → ${abbreviateMoney(then)}`;
+    }
+
+    const item = store.find(({ name }) => name === upgrade.target);
+    const gain = gainFor(upgrade, store, owned);
+    return `Doubles your ${item ? item.count : 0} ${
+        upgrade.target
+    }s · +${abbreviateMoney(gain)}/sec`;
+};
+
 export const Upgrades = ({ money, store, owned, handlePurchase }) => {
     const offered = UPGRADES.filter(
         (upgrade) =>
@@ -39,12 +58,17 @@ export const Upgrades = ({ money, store, owned, handlePurchase }) => {
 
             {offered.map((upgrade) => {
                 const affordable = money >= upgrade.price;
+                const effect = effectOf(upgrade, store, owned);
                 return (
                     <ListGroup key={upgrade.id} variant="flush">
                         <ListGroup.Item
                             action
                             disabled={!affordable}
-                            aria-label={`${upgrade.name} — ${upgrade.description}`}
+                            aria-label={`${
+                                upgrade.name
+                            }. ${effect}. Costs ${abbreviateMoney(
+                                upgrade.price
+                            )}`}
                             className={classNames(
                                 styles.row,
                                 'd-flex',
@@ -59,6 +83,7 @@ export const Upgrades = ({ money, store, owned, handlePurchase }) => {
                                 <div className={styles.name}>
                                     {upgrade.name}
                                 </div>
+                                <div className={styles.effect}>{effect}</div>
                                 <div className={styles.description}>
                                     {upgrade.description}
                                 </div>
@@ -84,6 +109,9 @@ export const Upgrades = ({ money, store, owned, handlePurchase }) => {
                     >
                         <Media.Body className="mr-2">
                             <div className={styles.name}>{upgrade.name}</div>
+                            <div className={styles.description}>
+                                {upgrade.description}
+                            </div>
                         </Media.Body>
                         <FontAwesomeIcon icon={faCheck} />
                     </ListGroup.Item>

@@ -139,6 +139,28 @@ export const rateFor = (store, owned = []) =>
         0
     );
 
+/**
+ * What buying this would actually add, per second, right now.
+ *
+ * A name and a price do not tell a player whether an upgrade is worth it --
+ * 'Automatic Stamper' means nothing next to another Tech Company until you can
+ * see that one is +40/sec and the other +321B/sec. Returns null for click
+ * upgrades, which change the press value rather than a rate.
+ */
+export const gainFor = (upgrade, store, owned = []) => {
+    if (!upgrade || upgrade.target === TARGET_CLICK) return null;
+
+    const item = store.find(({ name }) => name === upgrade.target);
+    if (!item) return 0;
+
+    const now = item.count * item.rate * multiplierFor(item.name, owned);
+    const then =
+        item.count *
+        item.rate *
+        multiplierFor(item.name, [...owned, upgrade.id]);
+    return then - now;
+};
+
 /** Value of a single press, after click upgrades. */
 export const denominationFor = (owned = []) =>
     multiplierFor(TARGET_CLICK, owned);

@@ -2,9 +2,10 @@
 
 .layer {
     position: fixed;
-    // Clear of the $BRRR footer, and well clear of the print button in the
-    // middle of the screen where the thumb lives.
-    bottom: 3.5rem;
+    // Just under the fixed header, where the money already has the player's
+    // attention. The bottom was clear of the print button but out of the line
+    // of sight, which is why these were being missed.
+    top: 4.25rem;
     left: 0.5rem;
     right: 0.5rem;
     z-index: 60;
@@ -27,7 +28,7 @@
     background: rgba(20, 22, 20, 0.94);
     color: $white;
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
-    animation: rise 0.22s ease-out;
+    animation: drop 0.22s ease-out;
 
     &:active {
         opacity: 0.8;
@@ -75,10 +76,10 @@
     margin-top: 0.15rem;
 }
 
-@keyframes rise {
+@keyframes drop {
     from {
         opacity: 0;
-        transform: translateY(0.5rem);
+        transform: translateY(-0.5rem);
     }
 
     to {

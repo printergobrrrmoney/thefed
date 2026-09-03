@@ -7,6 +7,7 @@ import {
     multiplierFor,
     rateFor,
     denominationFor,
+    gainFor,
     UNLOCK_AT,
     TARGET_CLICK,
 } from './upgrades';
@@ -231,5 +232,34 @@ describe('multiplierFor', () => {
         expect(
             multiplierFor(TARGET_CLICK, ['x-click-ink', 'x-click-press'])
         ).toBe(25);
+    });
+});
+
+describe('what an upgrade is worth, stated plainly', () => {
+    it('reports the rate it would add right now', () => {
+        const state = buy(withMoney(10_000_000), 'Rubber Stamp', UNLOCK_AT);
+        // Fifteen stamps at 2/sec, doubled, is another 30/sec.
+        expect(gainFor(findUpgrade('x-rubber-stamp'), state.store, [])).toBe(
+            UNLOCK_AT * 2
+        );
+    });
+
+    it('accounts for multipliers already owned', () => {
+        let state = buy(withMoney(100_000_000), 'Rubber Stamp', UNLOCK_AT);
+        state = reducer(state, purchaseUpgrade('x-rubber-stamp'));
+        // A second doubling would be worth twice as much as the first was.
+        expect(
+            gainFor(findUpgrade('x-rubber-stamp'), state.store, state.upgrades)
+        ).toBe(UNLOCK_AT * 2 * 2);
+    });
+
+    it('is zero for an item nobody owns', () => {
+        const state = createInitialState();
+        expect(gainFor(findUpgrade('x-tech-company'), state.store, [])).toBe(0);
+    });
+
+    it('has no per-second figure for a click upgrade', () => {
+        const state = createInitialState();
+        expect(gainFor(findUpgrade('x-click-ink'), state.store, [])).toBeNull();
     });
 });

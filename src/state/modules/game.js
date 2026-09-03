@@ -13,7 +13,7 @@ import {
     END_GAME,
     INCREMENT_TIMER,
     CLOSE_SESSION,
-    closeSession
+    closeSession,
 } from '../../game-core';
 
 import rubberStamp from '../../storeImages/rubber-stamp.jpg';
@@ -49,7 +49,7 @@ const images = {
     'Invade Cuba': cuba,
     'Commercial Bank': jpm,
     'Invade Iran': iran,
-    'Tech Company': apple
+    'Tech Company': apple,
 };
 
 const withImages = (store) =>
@@ -64,15 +64,15 @@ const createInitialState = () => {
         player: {},
         news: {
             cia: [],
-            trump: []
-        }
+            trump: [],
+        },
     };
 };
 
 const initialState = createInitialState();
 
 const newsReducer = (state, key, newsFunc) => ({
-    [key]: [...state.news[key], ...newsFunc(state)]
+    [key]: [...state.news[key], ...newsFunc(state, state.news[key])],
 });
 
 export default (state = initialState, action = {}) => {
@@ -89,8 +89,8 @@ export default (state = initialState, action = {}) => {
                   news: {
                       ...next.news,
                       ...newsReducer(next, 'cia', ciaUpdate),
-                      ...newsReducer(next, 'trump', trumpTweet)
-                  }
+                      ...newsReducer(next, 'trump', trumpTweet),
+                  },
               }
             : next;
     }
@@ -101,8 +101,8 @@ export default (state = initialState, action = {}) => {
                 ...state,
                 player: {
                     ...state.player,
-                    ...action.player
-                }
+                    ...action.player,
+                },
             };
         case START_GAME:
             // Every session starts from a clean slate. Only the player's
@@ -111,7 +111,7 @@ export default (state = initialState, action = {}) => {
                 ...createInitialState(),
                 player: state.player,
                 id: uuid(),
-                active: true
+                active: true,
             };
         case END_GAME:
             return createInitialState();
@@ -123,7 +123,7 @@ export default (state = initialState, action = {}) => {
 // Action Creators
 export const setPlayer = (player) => ({
     type: SET_PLAYER,
-    player
+    player,
 });
 
 export const startGame = () => (dispatch, getState) => {
@@ -157,5 +157,5 @@ export {
     printMoney,
     purchaseProduct,
     purchaseUpgrade,
-    closeSession
+    closeSession,
 } from '../../game-core';

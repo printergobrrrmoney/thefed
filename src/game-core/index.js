@@ -20,6 +20,7 @@ export {
     findUpgrade,
     isUnlocked,
     multiplierFor,
+    gainFor,
     rateFor,
     denominationFor,
 } from './upgrades.js';
