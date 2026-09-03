@@ -8,6 +8,7 @@ import { renderModal } from '../../../state/modules/modal';
 import Help from '../Help';
 import Store from './Store';
 import News from './News';
+import NewsToasts from './News/NewsToasts';
 import Leaderboard from '../../Leaderboard';
 import MoneyPrinting from './MoneyPrinting';
 import styles from './Gameplay.module.scss';
@@ -63,7 +64,14 @@ const Gameplay = ({
                     'position-fixed'
                 )}
             />
-            <Container fluid className={classNames(styles.container, h100, 'position-relative')}>
+            <Container
+                fluid
+                className={classNames(
+                    styles.container,
+                    h100,
+                    'position-relative'
+                )}
+            >
                 <Row className={h100}>
                     <Col xs={{ span: 12, order: 2 }} md={{ span: 4, order: 1 }}>
                         <Store />
@@ -75,10 +83,14 @@ const Gameplay = ({
                         <News />
                         {/* Visible mid-run so a player can see what they are
                             chasing rather than only afterwards. */}
-                        <Leaderboard compact className="mt-3 leaderboard-ingame" />
+                        <Leaderboard
+                            compact
+                            className="mt-3 leaderboard-ingame"
+                        />
                     </Col>
                 </Row>
             </Container>
+            <NewsToasts />
         </div>
     );
 };
