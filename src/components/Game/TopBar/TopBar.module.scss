@@ -1,6 +1,12 @@
 @import '../../../variables';
 
 .root {
+    // The bar is one line. The money ticker used to be absolutely positioned,
+    // which kept it out of the way of everything else at the cost of painting
+    // over the clock; now that it sits in the flow it has to be the thing that
+    // yields when space runs short, or the menu button wraps onto a second row.
+    flex-wrap: nowrap;
+
     ::-moz-selection {
         background: $white;
         color: $primary;
@@ -11,6 +17,32 @@
         background: $white;
         color: $primary;
         text-shadow: none;
+    }
+
+    // Everything except the figure keeps its size; the figure absorbs the
+    // difference, and abbreviation keeps it short enough that it can.
+    :global(.navbar-brand),
+    :global(.topbar-unscored),
+    .clock,
+    .toggle {
+        flex-shrink: 0;
+    }
+
+    @include media-breakpoint-down(sm) {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+
+        :global(.topbar-unscored) {
+            font-size: 0.65rem;
+            margin-left: 0.5rem !important;
+        }
+
+        .clock {
+            font-size: 1.05rem;
+            margin-left: 0.5rem !important;
+            // Keep the clock off the menu button; they sat flush before.
+            margin-right: 0.5rem;
+        }
     }
 }
 

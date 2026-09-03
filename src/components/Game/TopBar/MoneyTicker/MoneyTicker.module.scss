@@ -1,7 +1,22 @@
 @import '../../../../variables';
 
 .root {
-    top: 0.5rem;
-    left: 50%;
-    transform: translateX(-50%);
+    // Must be allowed to shrink below its content width, or a flex item pushes
+    // its neighbours off the bar rather than yielding. Paired with the ellipsis
+    // below, this is what keeps the menu button on the same row.
+    min-width: 0;
+    flex-shrink: 1;
+}
+
+.amount {
+    display: block;
+    font-family: 'VT323', monospace;
+    // Scales with the viewport so a long figure stays inside a phone, while a
+    // desktop still gets the big satisfying number.
+    font-size: clamp(1.25rem, 6.5vw, 2.5rem);
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
