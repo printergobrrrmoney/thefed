@@ -14,7 +14,7 @@ export const ERRORS = {
     NOT_FOUND: 'wallet-not-found',
     REJECTED: 'user-rejected',
     NO_ACCOUNT: 'no-account',
-    SIGN_FAILED: 'signature-failed'
+    SIGN_FAILED: 'signature-failed',
 };
 
 /** Phantom and friends reject with code 4001, following EIP-1193. */
@@ -41,7 +41,8 @@ export const utf8Bytes = (str) => {
             out.push(0xc0 | (c >> 6), 0x80 | (c & 0x3f));
         } else if (c >= 0xd800 && c <= 0xdbff) {
             i += 1;
-            const point = 0x10000 + ((c - 0xd800) << 10) + (str.charCodeAt(i) - 0xdc00);
+            const point =
+                0x10000 + ((c - 0xd800) << 10) + (str.charCodeAt(i) - 0xdc00);
             out.push(
                 0xf0 | (point >> 18),
                 0x80 | ((point >> 12) & 0x3f),
@@ -49,7 +50,11 @@ export const utf8Bytes = (str) => {
                 0x80 | (point & 0x3f)
             );
         } else {
-            out.push(0xe0 | (c >> 12), 0x80 | ((c >> 6) & 0x3f), 0x80 | (c & 0x3f));
+            out.push(
+                0xe0 | (c >> 12),
+                0x80 | ((c >> 6) & 0x3f),
+                0x80 | (c & 0x3f)
+            );
         }
     }
     return new Uint8Array(out);
@@ -71,7 +76,7 @@ export const connect = async (walletId) => {
     const wallet = findWallet(walletId);
     if (!wallet || !isUsable(wallet.provider)) {
         throw Object.assign(new Error('Wallet not found'), {
-            code: ERRORS.NOT_FOUND
+            code: ERRORS.NOT_FOUND,
         });
     }
 
@@ -80,7 +85,7 @@ export const connect = async (walletId) => {
         result = await wallet.provider.connect();
     } catch (error) {
         throw Object.assign(new Error('Connection refused'), {
-            code: isRejection(error) ? ERRORS.REJECTED : ERRORS.NO_ACCOUNT
+            code: isRejection(error) ? ERRORS.REJECTED : ERRORS.NO_ACCOUNT,
         });
     }
 
@@ -89,7 +94,7 @@ export const connect = async (walletId) => {
         (result && result.publicKey) || wallet.provider.publicKey || null;
     if (!publicKey) {
         throw Object.assign(new Error('No account'), {
-            code: ERRORS.NO_ACCOUNT
+            code: ERRORS.NO_ACCOUNT,
         });
     }
 
@@ -100,11 +105,18 @@ export const connect = async (walletId) => {
  * Sign the server-issued challenge. The nonce comes from the server, so the
  * resulting signature is only good for this one sign-in.
  */
-export const signIn = async ({ walletId, address, nonce, issuedAt, expiresAt, domain }) => {
+export const signIn = async ({
+    walletId,
+    address,
+    nonce,
+    issuedAt,
+    expiresAt,
+    domain,
+}) => {
     const wallet = findWallet(walletId);
     if (!wallet || !isUsable(wallet.provider)) {
         throw Object.assign(new Error('Wallet not found'), {
-            code: ERRORS.NOT_FOUND
+            code: ERRORS.NOT_FOUND,
         });
     }
 
@@ -113,7 +125,7 @@ export const signIn = async ({ walletId, address, nonce, issuedAt, expiresAt, do
         address,
         nonce,
         issuedAt,
-        expiresAt
+        expiresAt,
     });
     const encoded = utf8Bytes(message);
 
@@ -122,14 +134,14 @@ export const signIn = async ({ walletId, address, nonce, issuedAt, expiresAt, do
         signed = await wallet.provider.signMessage(encoded, 'utf8');
     } catch (error) {
         throw Object.assign(new Error('Signature refused'), {
-            code: isRejection(error) ? ERRORS.REJECTED : ERRORS.SIGN_FAILED
+            code: isRejection(error) ? ERRORS.REJECTED : ERRORS.SIGN_FAILED,
         });
     }
 
     const signature = (signed && signed.signature) || signed;
     if (!signature) {
         throw Object.assign(new Error('No signature returned'), {
-            code: ERRORS.SIGN_FAILED
+            code: ERRORS.SIGN_FAILED,
         });
     }
 
@@ -138,7 +150,11 @@ export const signIn = async ({ walletId, address, nonce, issuedAt, expiresAt, do
 
 export const disconnect = async (walletId) => {
     const wallet = findWallet(walletId);
-    if (wallet && wallet.provider && typeof wallet.provider.disconnect === 'function') {
+    if (
+        wallet &&
+        wallet.provider &&
+        typeof wallet.provider.disconnect === 'function'
+    ) {
         try {
             await wallet.provider.disconnect();
         } catch (error) {
@@ -149,6 +165,40 @@ export const disconnect = async (walletId) => {
 };
 
 /** 7xKX…gAsU — enough to recognise, short enough to sit in a nav bar. */
+/**
+ * Send a transaction the page built itself.
+ *
+ * Wallets take a library Transaction object, which this project cannot
+ * construct, but they also accept a base58 message through `request` -- which
+ * is the same thing without the object. Signing in stays a message signature;
+ * this is the one place a transaction is ever approved, and the only
+ * instruction in it is the claim.
+ */
+export const signAndSendMessage = async (walletId, encodedMessage) => {
+    const wallet = findWallet(walletId);
+    if (!wallet || !isUsable(wallet.provider)) {
+        throw new Error(ERRORS.NO_WALLET);
+    }
+
+    const { provider } = wallet;
+    if (typeof provider.request !== 'function') {
+        throw new Error(
+            'This wallet cannot be sent a prepared transaction. Try Phantom.'
+        );
+    }
+
+    const result = await provider.request({
+        method: 'signAndSendTransaction',
+        params: { message: encodedMessage },
+    });
+
+    const signature = result && (result.signature || result);
+    if (typeof signature !== 'string') {
+        throw new Error('The wallet did not return a transaction signature.');
+    }
+    return signature;
+};
+
 export const shortAddress = (address, lead = 4, tail = 4) =>
     typeof address === 'string' && address.length > lead + tail + 1
         ? `${address.slice(0, lead)}…${address.slice(-tail)}`

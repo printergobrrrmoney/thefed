@@ -1,10 +1,11 @@
 /**
  * Wallet sign-in.
  *
- * This site performs exactly two wallet operations: `connect` and
- * `signMessage`. It never builds, requests or sends a transaction, and it never
- * sees a seed phrase. Anything claiming to be The Fed that asks you to approve
- * a transaction is not this site.
+ * Signing in uses only `connect` and `signMessage`, and never approves a
+ * transaction. Claiming is the single exception, and the transaction it sends
+ * is built in `src/claim` where its one instruction can be read: it moves
+ * tokens to the player and nothing else. This module never sees a seed phrase,
+ * and never asks for standing permission over a wallet.
  */
 export {
     WALLETS,
@@ -27,6 +28,7 @@ export {
     connect,
     signIn,
     disconnect,
+    signAndSendMessage,
     shortAddress,
     toBase64,
     utf8Bytes,

@@ -17,6 +17,7 @@ import {
 } from '../../wallet';
 import { connectAndSignIn } from '../../state/modules/wallet';
 import Rewards from '../Rewards';
+import ClaimDay from './ClaimDay';
 import commatize from '../../commatizeNumber';
 
 /**
@@ -32,6 +33,14 @@ import commatize from '../../commatizeNumber';
  * does not exist.
  */
 const ADDRESS = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
+
+/** The last week of days, newest first. Older days stay claimable by URL. */
+const recentDays = () =>
+    Array.from({ length: 7 }, (unused, back) => {
+        const when = new Date();
+        when.setUTCDate(when.getUTCDate() - back - 1);
+        return when.toISOString().slice(0, 10);
+    });
 
 export const Standing = ({ data }) => {
     if (!data.found) {
@@ -173,11 +182,20 @@ export const Claim = ({
                     </li>
                     <li>
                         <strong>
-                            We will never ask you to approve a transaction to
-                            claim.
+                            Signing in never approves a transaction.
                         </strong>{' '}
-                        Signing in is a message signature. It moves nothing and
-                        costs nothing.
+                        It is a message signature: it moves nothing and costs
+                        nothing.
+                    </li>
+                    <li>
+                        <strong>
+                            Claiming is the one transaction we will ever ask you
+                            to approve, and it only ever moves tokens to you.
+                        </strong>{' '}
+                        We will never ask you to approve anything that sends
+                        tokens away from your wallet, or that grants us standing
+                        permission over it. If a page calling itself The Fed
+                        asks for either, it is not us.
                     </li>
                     <li>
                         We will never ask for a seed phrase or a private key. No
@@ -303,6 +321,15 @@ export const Claim = ({
                                     .filter(Boolean)}
                             </ButtonGroup>
                         )}
+                    </div>
+                )}
+
+                {signedIn && address && (
+                    <div className="claim-days-section">
+                        <h2>Your days</h2>
+                        {recentDays().map((day) => (
+                            <ClaimDay key={day} day={day} />
+                        ))}
                     </div>
                 )}
 
